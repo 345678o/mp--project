@@ -15,17 +15,17 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  perspective: 1500px;
+  perspective: 1200px; /* Decreased from 1500px */
   top: 0; /* Added top: 0 to ensure it covers the viewport if fixed */
   left: 0; /* Added left: 0 for the same reason */
 }
 
 .gallery {
   position: absolute;
-  top: 19%; /* May need adjustment, e.g., to 15% if it looks too low */
+  top: 21%; /* Adjusted from 19% */
   left: 49%;
   transform-style: preserve-3d;
-  transform: translateX(-50%) rotateX(55deg);
+  transform: translateX(-50%) rotateX(58deg); /* Increased from 55deg */
 }
 
 .item {
@@ -178,8 +178,8 @@ body {
   color: #2c3e50; /* Matched to description box text color */
   background-color: rgba(255, 255, 255, 0.55); /* Matched to description box alpha */
   border: 1px solid rgba(255, 255, 255, 0.25); /* Matched to description box border */
-  backdrop-filter: blur(20px); /* Matched to description box blur */
-  -webkit-backdrop-filter: blur(20px); /* Safari support - Matched */
+  backdrop-filter: blur(24px); /* Increased from 20px */
+  -webkit-backdrop-filter: blur(24px); /* Increased from 20px */
   border-radius: 20px;
   text-decoration: none;
   text-align: center;
@@ -212,19 +212,24 @@ body {
     line-height: 1;
   }
 
+  .gallery { /* Added to adjust perspective on mobile */
+    transform: translateX(-50%) rotateX(63deg); /* Increased rotateX from 60deg */
+    top: 22%; /* Adjusted from 24% to move gallery up */
+  }
+
   .preview-img {
     width: 48vw; /* Scaled from 60vw */
     height: 32vw; /* Scaled from 40vw */
     max-width: 224px; /* Scaled from 280px */
     max-height: 149px; /* Scaled from 186px */
-    top: 54%;
+    top: 50%;
   }
 
   .image-specific-text {
     left: 50%;
     right: auto; 
     top: auto; 
-    bottom: 5%; 
+    bottom: 10%; /* Changed from 5% to move it higher */
     transform: translateX(-50%); 
     width: 70.4vw; /* Scaled from 88vw */
     max-width: 304px; /* Scaled from 380px */
@@ -240,8 +245,8 @@ body {
     bottom: 20px; /* Scaled from 25px */
   }
   .standalone-explore-button {
-    padding: 8px 17.6px; /* Scaled from 10px 22px */
-    font-size: 11.2px; /* Scaled from 14px */
+    padding: 9.6px 21px; /* Increased from 8px 17.6px by ~20% */
+    font-size: 13.4px; /* Increased from 11.2px by ~20% */
   }
   .image-specific-text .view-project-link-text {
     text-align: center; /* Ensures it remains centered on mobile */
@@ -285,12 +290,12 @@ body {
     width: calc(100% - 32px); /* Scaled from 40px */
   }
   .standalone-explore-button {
-    padding: 9.6px 16px; /* Scaled from 12px 20px */
-    font-size: 11.2px; /* Scaled from 14px */
+    padding: 11.5px 19.2px; /* Increased from 9.6px 16px by ~20% */
+    font-size: 13.4px; /* Increased from 11.2px by ~20% */
     width: 100%; 
   }
   .image-specific-text .view-project-link-text {
-     font-size: 0.85em;
+    font-size: 0.85em;
   }
   
   .preview-img {

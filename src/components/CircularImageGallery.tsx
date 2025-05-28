@@ -250,41 +250,52 @@ const CircularImageGallery: React.FC = () => {
       delay: 0.1,
     });
 
+    // 1. Micro Projects Text Fade (slower, with EaseIn)
+    const textFadeDuration = 1.5;
+    tl.to(bgText, { 
+        color: 'rgba(0, 0, 0, 0.12)', 
+        duration: textFadeDuration,
+        ease: "power1.in"
+    });
+
+    // 2. Image Spiral Animation (starts after MP text fade completes)
+    const itemAnimationDuration = 0.4;
     tl.to(items, {
       y: 0,
       scale: 1,
       opacity: 1,
       rotationZ: (idx: number) => idx * angleIncrement - 90,
-      duration: 0.4,
+      duration: itemAnimationDuration,
       stagger: 0.015,
-    });
+    }, ">");
 
-    tl.to(bgText, { 
-        color: 'rgba(0, 0, 0, 0.12)', 
-        duration: 1.0,
-    }, 0.1);
+    // 3. Preview Image (starts after spiral completes)
+    const previewFadeDuration = 0.4;
+    tl.to(previewImgContainer, { 
+        opacity: 1, 
+        duration: previewFadeDuration 
+    }, ">");
 
+    // 4. Description Text (starts after preview image finishes)
+    const descriptionFadeDuration = 0.4;
+    tl.to(descriptionText, { 
+        opacity: 1, 
+        duration: descriptionFadeDuration 
+    }, ">");
+
+    // 5. Navbar and Explore Button (start together, after description text finishes)
+    const navAndButtonDuration = 0.4;
     tl.to(navElement, { 
         y: 0, 
         opacity: 1, 
-        duration: 0.4 
-    }, "-=0.2");
+        duration: navAndButtonDuration 
+    }, ">");
 
-    tl.to(exploreButtonContainer, {
+    tl.to(exploreButtonContainer, { 
         y: 0,
         opacity: 1,
-        duration: 0.4
-    }, "-=0.2");
-
-    tl.to(previewImgContainer, { 
-        opacity: 1, 
-        duration: 0.4 
-    }, ">-0.2");
-
-    tl.to(descriptionText, { 
-        opacity: 1, 
-        duration: 0.4 
-    }, ">");
+        duration: navAndButtonDuration
+    }, "<" );
 
     const updateContentForEffect = (index: number) => {
         updateActiveContentState(
