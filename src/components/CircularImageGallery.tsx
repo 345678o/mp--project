@@ -1,24 +1,47 @@
 'use client';
 
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import './CircularImageGallery.css';
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 const NUM_ITEMS = 150;
 const NUM_UNIQUE_IMAGES = 15;
 
+// Updated sample texts for each unique image for more variety
+const sampleImageTexts = [
+  "Exploring the Andromeda Galaxy - a vast expanse of stars and cosmic wonders.",
+  "The Art of Bonsai: Cultivating miniature trees, a tradition from ancient Japan.",
+  "Architectural Marvels: A look into the sustainable designs of tomorrow.",
+  "Deep Sea Creatures: Unveiling the mysteries lurking in the ocean's abyss.",
+  "Culinary Journeys: Tasting the unique flavors of street food from around the world.",
+  "Vintage Automobiles: Celebrating the timeless elegance of classic car designs.",
+  "Abstract Digital Art: Where algorithms and creativity meet to form new visuals.",
+  "The Serenity of Nature: Capturing a peaceful moment by a mountain lakeside vista.",
+  "Urban Exploration: Discovering hidden gems in the bustling cityscapes.",
+  "Innovations in Robotics: How AI is shaping the future of automated assistance.",
+  "Wildlife Photography: A close encounter with a majestic Siberian tiger in its habitat.",
+  "Horology & Timepieces: The intricate mechanics behind a luxury Swiss watch.",
+  "Adventures in Paragliding: Soaring above picturesque valleys and mountains.",
+  "The World of Microscopic Organisms: A hidden universe teeming with life.",
+  "Ancient Civilizations: Unearthing the secrets of the Egyptian pyramids."
+];
+
 const CircularImageGallery: React.FC = () => {
   const galleryRef = useRef<HTMLDivElement>(null);
   const previewImageRef = useRef<HTMLImageElement>(null);
-  const activeItemIndexRef = useRef<number>(0); // To track the active item for keyboard nav
-  const itemsRef = useRef<NodeListOf<HTMLDivElement> | null>(null); // To store items for access in keydown handler
-  const angleIncrementRef = useRef<number>(0); // To store angleIncrement
-  const scrollTriggerInstanceRef = useRef<ScrollTrigger | null>(null); // To store ScrollTrigger instance
+  const activeItemIndexRef = useRef<number>(0);
+  const itemsRef = useRef<NodeListOf<HTMLDivElement> | null>(null);
+  const angleIncrementRef = useRef<number>(0);
+  const scrollTriggerInstanceRef = useRef<ScrollTrigger | null>(null);
 
-  // Create an array of item data to be mapped in JSX
+  const [currentImageDescription, setCurrentImageDescription] = useState<string>(
+    sampleImageTexts[0] // Initial text for the first image
+  );
+
   const galleryItemsData = useMemo(() => {
     return Array.from({ length: NUM_ITEMS }, (_, i) => ({
       id: i,
@@ -40,19 +63,24 @@ const CircularImageGallery: React.FC = () => {
     angleIncrementRef.current = 360 / numberOfItems;
     const angleIncrement = angleIncrementRef.current;
 
+    const updateActiveContent = (index: number) => {
+      activeItemIndexRef.current = index;
+      const itemImage = items[index]?.querySelector('img');
+      if (itemImage && previewImage) {
+        previewImage.src = itemImage.src;
+      }
+      setCurrentImageDescription(sampleImageTexts[index % NUM_UNIQUE_IMAGES]);
+    };
+
     const handleMouseMove = (event: MouseEvent) => {
       const x = event.clientX;
       const y = event.clientY;
-
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
-
       const percentX = (x - centerX) / centerX;
       const percentY = (y - centerY) / centerY;
-
       const rotateX = 55 + percentY * 2;
       const rotateY = percentX * 2;
-
       gsap.to(gallery, {
         duration: 1,
         ease: 'power2.out',
@@ -71,135 +99,92 @@ const CircularImageGallery: React.FC = () => {
         transformOrigin: '50% 400px',
       });
 
-      // Update activeItemIndexRef on mouseover for consistency with keyboard nav
       item.addEventListener('mouseover', () => {
-        const imgInsideItem = item.querySelector('img');
-        if (imgInsideItem) {
-          previewImage.src = imgInsideItem.src;
-        }
-        activeItemIndexRef.current = index; // Update active index
+        updateActiveContent(index);
         gsap.to(item, {
-          x: 10,
-          z: 10,
-          y: 10,
-          ease: 'power2.out',
-          duration: 0.5,
+          x: 10, z: 10, y: 10,
+          ease: 'power2.out', duration: 0.5,
         });
       });
 
       item.addEventListener('mouseout', () => {
-        // previewImage.src = '/assets/img1.jpg'; // Default preview image - might be overwritten by scroll/key nav immediately
         gsap.to(item, {
-          x: 0,
-          y: 0,
-          z: 0,
-          ease: 'power2.out',
-          duration: 0.5,
+          x: 0, y: 0, z: 0,
+          ease: 'power2.out', duration: 0.5,
         });
       });
     });
 
     scrollTriggerInstanceRef.current = ScrollTrigger.create({
-      trigger: 'body', // Consider a more specific trigger if body causes issues
+      trigger: 'body',
       start: 'top top',
       end: 'bottom bottom',
       scrub: 2,
       onUpdate: (self) => {
-        const rotationProgress = self.progress * 360 * 1; // Multiplier for scroll speed effect
-        let minAngleDiff = 360; // Max possible angle difference
+        const rotationProgress = self.progress * 360 * 1;
+        let newActiveIndex = 0;
+        let minAngleDiff = 360;
 
-        items.forEach((item, index) => {
-          const currentAngle = (index * angleIncrement - 90 + rotationProgress);
-          gsap.to(item, {
-            rotationZ: currentAngle,
-            duration: 0.5, // Smoother transition for individual items
-            ease: 'power1.out',
-            overwrite: 'auto',
-          });
+        items.forEach((itemElement, idx) => {
+          const currentAngle = (idx * angleIncrement - 90 + rotationProgress);
+          // Use gsap.set for direct manipulation tied to scrub
+          gsap.set(itemElement, { rotationZ: currentAngle });
 
-          // Determine the item closest to the top (270 deg in this setup)
-          const targetAngle = 270;
-          // Normalize currentAngle to be within [0, 360) for comparison
+          const targetAngle = 270; // Angle considered "front-most"
           const normalizedCurrentAngle = (currentAngle % 360 + 360) % 360;
           let angleDiff = Math.abs(normalizedCurrentAngle - targetAngle);
-          angleDiff = Math.min(angleDiff, 360 - angleDiff); // Accounts for cyclical nature
+          angleDiff = Math.min(angleDiff, 360 - angleDiff);
 
           if (angleDiff < minAngleDiff) {
             minAngleDiff = angleDiff;
-            activeItemIndexRef.current = index; // Update active index based on scroll
+            newActiveIndex = idx;
           }
         });
-
-        const activeItemImage = items[activeItemIndexRef.current]?.querySelector('img');
-        if (activeItemImage && previewImage) {
-          previewImage.src = activeItemImage.src;
+        // Update content only if the active index has actually changed via scroll logic
+        if (activeItemIndexRef.current !== newActiveIndex) {
+             updateActiveContent(newActiveIndex);
         }
       },
     });
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!itemsRef.current || itemsRef.current.length === 0 || !scrollTriggerInstanceRef.current) return;
-      const items = itemsRef.current;
-      const numItems = items.length;
-      let newActiveIndex = activeItemIndexRef.current;
+      
+      const numItems = itemsRef.current.length;
+      let newIndex = activeItemIndexRef.current;
 
       if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
-        newActiveIndex = (activeItemIndexRef.current + 1) % numItems;
+        newIndex = (activeItemIndexRef.current + 1) % numItems;
       } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
-        newActiveIndex = (activeItemIndexRef.current - 1 + numItems) % numItems;
+        newIndex = (activeItemIndexRef.current - 1 + numItems) % numItems;
       }
 
-      if (newActiveIndex !== activeItemIndexRef.current) {
-        activeItemIndexRef.current = newActiveIndex;
-        const activeItemImage = items[newActiveIndex]?.querySelector('img');
-        if (activeItemImage && previewImageRef.current) {
-          previewImageRef.current.src = activeItemImage.src;
-        }
+      if (newIndex !== activeItemIndexRef.current) {
+        updateActiveContent(newIndex);
 
-        // Optional: Animate gallery to bring the new active item to the front
-        // This requires calculating the scroll position that makes the item active.
-        // The target rotationZ for an item to be at the top (270deg) is:
-        // itemOriginalRotationZ + rotationProgress = 270
-        // (newActiveIndex * angleIncrement - 90) + progress * 360 = 270
-        // progress * 360 = 270 - (newActiveIndex * angleIncrement - 90)
-        // progress = (360 - newActiveIndex * angleIncrement) / 360
-        // progress = 1 - (newActiveIndex * angleIncrementRef.current) / 360;
-        // This formula might need adjustment based on how rotationProgress maps to visual front.
-        // For simplicity, let's calculate the progress needed to make items[newActiveIndex] face front.
-        // The desired final rotationZ for items[newActiveIndex] is 270 degrees.
-        // Original rotationZ is: newActiveIndex * angleIncrement - 90.
-        // Let R = rotationProgress (from scroll, self.progress * 360)
-        // newActiveIndex * angleIncrement - 90 + R = 270 (or 270 + k*360)
-        // R = 360 - newActiveIndex * angleIncrement (modulo 360)
-        // scrollProgress = R / 360
-        
-        let targetRotation = (360 - (newActiveIndex * angleIncrementRef.current)) % 360;
-        if (targetRotation < 0) targetRotation += 360; // ensure positive
-        // We need the rotationProgress that makes items[newActiveIndex] be at 270 degrees
-        // (newActiveIndex * angleIncrement - 90 + rotationProgressVal) % 360 = 270
-        // Let currentItemInitialAngle = newActiveIndex * angleIncrementRef.current - 90;
-        // (currentItemInitialAngle + desiredRotationProgress) % 360 = 270;
-        // desiredRotationProgress = (270 - currentItemInitialAngle % 360 + 360) % 360;
-        // This is the rotation for the *whole gallery*
-        // The scrollProgress = desiredRotationProgress / (360 * 1) where 1 is the multiplier
+        const itemInitialAngle = newIndex * angleIncrementRef.current - 90;
+        const requiredRotationProgress = (270 - itemInitialAngle + 360 * 5) % 360;
+        const scrollProgressTarget = requiredRotationProgress / 360;
 
-        const itemInitialAngle = newActiveIndex * angleIncrementRef.current - 90;
-        const requiredRotationProgress = (270 - itemInitialAngle + 360 * 5) % 360; // Add large multiple of 360 to ensure positive before modulo. Made const.
-        
-        const scrollProgressTarget = requiredRotationProgress / (360 * 1); // *1 is the multiplier in onUpdate
-
-        // Animate scroll position
         gsap.to(window, {
             scrollTo: {
                 y: scrollTriggerInstanceRef.current.start + (scrollTriggerInstanceRef.current.end - scrollTriggerInstanceRef.current.start) * scrollProgressTarget,
+                autoKill: true
             },
             duration: 0.7,
-            ease: 'power2.inOut'
+            ease: 'power2.inOut',
+            onComplete: () => {
+                // After scroll, ensure ScrollTrigger updates its internal progress if necessary
+                ScrollTrigger.refresh();
+            }
         });
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
+
+    // Set initial content
+    updateActiveContent(0);
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
@@ -214,6 +199,11 @@ const CircularImageGallery: React.FC = () => {
 
   return (
     <>
+      <div className="background-text">
+        Micro
+        <br />
+        Projects
+      </div>
       <nav>
         <p>Codegrid &nbsp;&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;&nbsp;14 04 2024</p>
         <p>Subscribe &nbsp;&nbsp;&nbsp Instagram &nbsp;&nbsp;&nbsp Twitter</p>
@@ -227,9 +217,12 @@ const CircularImageGallery: React.FC = () => {
         <img ref={previewImageRef} src="/assets/img1.jpg" alt="Preview" />
       </div>
 
+      <div className="image-specific-text">
+        <p>{currentImageDescription}</p>
+      </div>
+
       <div className="container">
         <div ref={galleryRef} className="gallery">
-          {/* Render items using React map */}
           {galleryItemsData.map(itemData => (
             <div key={itemData.id} className="item">
               <img src={itemData.imgSrc} alt={`Image ${itemData.id % NUM_UNIQUE_IMAGES + 1}`} />

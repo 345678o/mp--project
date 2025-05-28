@@ -81,4 +81,43 @@ footer {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* New styles for background text and image-specific text */
+.background-text {
+  position: fixed;
+  top: 50%;
+  left: 1em; /* Adjusted for potentially wider text due to line break */
+  transform: translateY(-50%);
+  font-size: 10vw; /* Responsive font size */
+  font-weight: bold;
+  color: rgba(0, 0, 0, 0.08); /* Increased opacity slightly */
+  z-index: -1; /* Behind everything else */
+  pointer-events: none; /* Non-interactive */
+  line-height: 0.9; /* Tighter line height for stacked text */
+  text-align: left; /* Ensures left alignment */
+}
+
+.image-specific-text {
+  position: fixed;
+  top: 50%;
+  right: 2em;
+  transform: translateY(-50%);
+  width: 280px; /* Slightly wider for more text */
+  padding: 1.5em;
+  background-color: rgba(255, 255, 255, 0.95); /* Lighter, more opaque background */
+  border-radius: 12px; /* Softer, more modern radius */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* Softer, more diffused shadow */
+  color: #2c3e50; /* Darker, more readable text */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* Modern system font stack */
+  font-size: 15px;
+  font-weight: 400;
+  z-index: 50;
+  pointer-events: none;
+  transition: opacity 0.3s ease; /* Smooth transition if opacity changes */
+}
+
+.image-specific-text p {
+  margin: 0;
+  line-height: 1.65;
 } 
