@@ -110,7 +110,6 @@ const CircularImageGallery: React.FC = () => {
     angleIncrementRef.current = 360 / numberOfItems;
     const angleIncrement = angleIncrementRef.current;
 
-    // Local reference for updateActiveContent to be used inside useEffect callbacks
     const updateContentForEffect = (index: number) => {
         updateActiveContentState(
             index, 
@@ -149,7 +148,7 @@ const CircularImageGallery: React.FC = () => {
       });
 
       item.addEventListener('mouseover', () => {
-        updateContentForEffect(index); // Use the local version
+        updateContentForEffect(index);
         gsap.to(item, {
           x: 10, z: 10, y: 10,
           ease: 'power2.out', duration: 0.5,
@@ -163,19 +162,18 @@ const CircularImageGallery: React.FC = () => {
         });
       });
 
-      // Add click listener to each item
       item.addEventListener('click', () => {
         scrollToItem(index);
       });
     });
 
     scrollTriggerInstanceRef.current = ScrollTrigger.create({
-      trigger: 'body', // Ensure this trigger is appropriate for your layout
+      trigger: 'body',
       start: 'top top',
       end: 'bottom bottom',
       scrub: 2,
       onUpdate: (self) => {
-        const rotationProgress = self.progress * 360 * 1; // Adjust multiplier for rotation speed/direction if needed
+        const rotationProgress = self.progress * 360 * 1;
         let newActiveIndex = 0;
         let minAngleDiff = 360;
 
@@ -183,7 +181,7 @@ const CircularImageGallery: React.FC = () => {
           const currentAngle = (idx * angleIncrement - 90 + rotationProgress);
           gsap.set(itemElement, { rotationZ: currentAngle });
 
-          const targetAngle = 270; // Angle considered "front-most"
+          const targetAngle = 270;
           const normalizedCurrentAngle = (currentAngle % 360 + 360) % 360;
           let angleDiff = Math.abs(normalizedCurrentAngle - targetAngle);
           angleDiff = Math.min(angleDiff, 360 - angleDiff);
@@ -195,16 +193,18 @@ const CircularImageGallery: React.FC = () => {
         });
 
         if (activeItemIndexRef.current !== newActiveIndex) {
-             updateContentForEffect(newActiveIndex);
+            updateContentForEffect(newActiveIndex);
         }
       },
     });
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (!itemsRef.current || itemsRef.current.length === 0) return;
+
       if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
-        scrollToItem((activeItemIndexRef.current + 1) % items.length);
+        scrollToItem((activeItemIndexRef.current + 1) % itemsRef.current.length);
       } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
-        scrollToItem((activeItemIndexRef.current - 1 + items.length) % items.length);
+        scrollToItem((activeItemIndexRef.current - 1 + itemsRef.current.length) % itemsRef.current.length);
       }
     };
 
@@ -219,11 +219,7 @@ const CircularImageGallery: React.FC = () => {
         scrollTriggerInstanceRef.current.kill();
       }
       items.forEach(item => {
-        gsap.killTweensOf(item);
-        // It's good practice to remove event listeners here, especially if items can be re-rendered
-        // However, since these items are static within this component's lifecycle and get cleaned up,
-        // we might not strictly need to remove individual mouseover/mouseout/click here if performance isn't an issue.
-        // For robustness: item.removeEventListener('mouseover', ...); item.removeEventListener('mouseout', ...); item.removeEventListener('click', ...);
+          gsap.killTweensOf(item);
       });
       if (gallery) gsap.killTweensOf(gallery);
     };
@@ -231,19 +227,17 @@ const CircularImageGallery: React.FC = () => {
 
   return (
     <>
+      <nav className="floating-navbar">
+        <a href="/projects">Projects</a>
+        <a href="/contact">Contact Us</a>
+        <a href="/make-your-own">Make Your Own Projects</a>
+      </nav>
+
       <div className="background-text">
         Micro
         <br />
         Projects
       </div>
-      <nav>
-        <p>Codegrid &nbsp;&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;&nbsp;14 04 2024</p>
-        <p>Subscribe &nbsp;&nbsp;&nbsp Instagram &nbsp;&nbsp;&nbsp Twitter</p>
-      </nav>
-      <footer>
-        <p>Unlock Source Code with PRO</p>
-        <p>Link In Description</p>
-      </footer>
 
       <div className="preview-img">
         <img ref={previewImageRef} src="/assets/img1.jpg" alt="Preview" />
