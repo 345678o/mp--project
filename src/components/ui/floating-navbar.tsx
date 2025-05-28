@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import type { JSX } from 'react'; // Explicit import for JSX type
 import { motion, AnimatePresence, useMotionValueEvent, useScroll } from 'framer-motion';
 import './floating-navbar.css'; // We will create this CSS file
 

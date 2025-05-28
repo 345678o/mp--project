@@ -197,6 +197,9 @@ const CircularImageGallery: React.FC = () => {
     const numberOfItems = items.length;
     angleIncrementRef.current = 360 / numberOfItems;
     const angleIncrement = angleIncrementRef.current;
+    
+    const isMobile = window.innerWidth <= 768;
+    const itemTransformOrigin = isMobile ? '50% 420px' : '50% 400px';
 
     gsap.set(items, { 
       y: window.innerHeight / 2,
@@ -204,7 +207,7 @@ const CircularImageGallery: React.FC = () => {
       rotationZ: (idx: number) => idx * angleIncrement - 90 + 180,
       scale: 0.5,
       opacity: 0,
-      transformOrigin: '50% 400px'
+      transformOrigin: itemTransformOrigin 
     });
     gsap.set(bgText, { color: '#000000', opacity: 1 });
     gsap.set(previewImgContainer, { opacity: 0 });
@@ -315,9 +318,6 @@ const CircularImageGallery: React.FC = () => {
   }, [galleryItemsData, setCurrentImageDetails, scrollToItem]);
 
   const navItems = [
-    { name: "Projects", link: "/projects" },
-    { name: "Contact Us", link: "/contact" },
-    { name: "Make Your Own Projects", link: "/make-your-own" },
     { name: "Mentors", link: "/mentors" },
     { name: "Resources", link: "/resources" },
   ];
