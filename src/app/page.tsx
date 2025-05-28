@@ -2,7 +2,7 @@ import CircularImageGallery from '@/components/CircularImageGallery';
 
 export default function Home() {
   return (
-    <main>
+    <main style={{ height: '300vh' }}>
       <CircularImageGallery />
     </main>
   );

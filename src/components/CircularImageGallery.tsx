@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useMemo, useState } from 'react';
+import React, { useEffect, useRef, useMemo, useState, useCallback } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
@@ -30,6 +30,24 @@ const sampleImageTexts = [
   "Ancient Civilizations: Unearthing the secrets of the Egyptian pyramids."
 ];
 
+// Moved updateActiveContent outside useEffect and made it a standalone function
+const updateActiveContentState = (
+  index: number,
+  items: NodeListOf<HTMLDivElement> | null,
+  previewImage: HTMLImageElement | null,
+  activeItemIndexRef: React.MutableRefObject<number>,
+  setCurrentImageDescription: React.Dispatch<React.SetStateAction<string>>
+) => {
+  activeItemIndexRef.current = index;
+  if (items && items[index]) {
+    const itemImage = items[index].querySelector('img');
+    if (itemImage && previewImage) {
+      previewImage.src = itemImage.src;
+    }
+  }
+  setCurrentImageDescription(sampleImageTexts[index % NUM_UNIQUE_IMAGES]);
+};
+
 const CircularImageGallery: React.FC = () => {
   const galleryRef = useRef<HTMLDivElement>(null);
   const previewImageRef = useRef<HTMLImageElement>(null);
@@ -49,6 +67,35 @@ const CircularImageGallery: React.FC = () => {
     }));
   }, []);
 
+  const scrollToItem = useCallback((index: number) => {
+    if (!itemsRef.current || itemsRef.current.length === 0 || !scrollTriggerInstanceRef.current) return;
+
+    updateActiveContentState(
+      index,
+      itemsRef.current, 
+      previewImageRef.current, 
+      activeItemIndexRef,
+      setCurrentImageDescription
+    );
+
+    const itemInitialAngle = index * angleIncrementRef.current - 90;
+    // Target angle is 270 (bottom of the circle)
+    const requiredRotationProgress = (270 - itemInitialAngle + 360 * 5) % 360; // Add multiples of 360 to ensure positive result and shortest path
+    const scrollProgressTarget = requiredRotationProgress / 360;
+
+    gsap.to(window, {
+      scrollTo: {
+        y: scrollTriggerInstanceRef.current.start + (scrollTriggerInstanceRef.current.end - scrollTriggerInstanceRef.current.start) * scrollProgressTarget,
+        autoKill: true
+      },
+      duration: 0.7,
+      ease: 'power2.inOut',
+      onComplete: () => {
+        ScrollTrigger.refresh(); // Refresh ScrollTrigger to ensure its internal state is up-to-date
+      }
+    });
+  }, [setCurrentImageDescription]);
+
   useEffect(() => {
     const gallery = galleryRef.current;
     const previewImage = previewImageRef.current;
@@ -63,13 +110,15 @@ const CircularImageGallery: React.FC = () => {
     angleIncrementRef.current = 360 / numberOfItems;
     const angleIncrement = angleIncrementRef.current;
 
-    const updateActiveContent = (index: number) => {
-      activeItemIndexRef.current = index;
-      const itemImage = items[index]?.querySelector('img');
-      if (itemImage && previewImage) {
-        previewImage.src = itemImage.src;
-      }
-      setCurrentImageDescription(sampleImageTexts[index % NUM_UNIQUE_IMAGES]);
+    // Local reference for updateActiveContent to be used inside useEffect callbacks
+    const updateContentForEffect = (index: number) => {
+        updateActiveContentState(
+            index, 
+            items, 
+            previewImage, 
+            activeItemIndexRef, 
+            setCurrentImageDescription
+        );
     };
 
     const handleMouseMove = (event: MouseEvent) => {
@@ -100,7 +149,7 @@ const CircularImageGallery: React.FC = () => {
       });
 
       item.addEventListener('mouseover', () => {
-        updateActiveContent(index);
+        updateContentForEffect(index); // Use the local version
         gsap.to(item, {
           x: 10, z: 10, y: 10,
           ease: 'power2.out', duration: 0.5,
@@ -113,21 +162,25 @@ const CircularImageGallery: React.FC = () => {
           ease: 'power2.out', duration: 0.5,
         });
       });
+
+      // Add click listener to each item
+      item.addEventListener('click', () => {
+        scrollToItem(index);
+      });
     });
 
     scrollTriggerInstanceRef.current = ScrollTrigger.create({
-      trigger: 'body',
+      trigger: 'body', // Ensure this trigger is appropriate for your layout
       start: 'top top',
       end: 'bottom bottom',
       scrub: 2,
       onUpdate: (self) => {
-        const rotationProgress = self.progress * 360 * 1;
+        const rotationProgress = self.progress * 360 * 1; // Adjust multiplier for rotation speed/direction if needed
         let newActiveIndex = 0;
         let minAngleDiff = 360;
 
         items.forEach((itemElement, idx) => {
           const currentAngle = (idx * angleIncrement - 90 + rotationProgress);
-          // Use gsap.set for direct manipulation tied to scrub
           gsap.set(itemElement, { rotationZ: currentAngle });
 
           const targetAngle = 270; // Angle considered "front-most"
@@ -140,51 +193,24 @@ const CircularImageGallery: React.FC = () => {
             newActiveIndex = idx;
           }
         });
-        // Update content only if the active index has actually changed via scroll logic
+
         if (activeItemIndexRef.current !== newActiveIndex) {
-             updateActiveContent(newActiveIndex);
+             updateContentForEffect(newActiveIndex);
         }
       },
     });
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (!itemsRef.current || itemsRef.current.length === 0 || !scrollTriggerInstanceRef.current) return;
-      
-      const numItems = itemsRef.current.length;
-      let newIndex = activeItemIndexRef.current;
-
       if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
-        newIndex = (activeItemIndexRef.current + 1) % numItems;
+        scrollToItem((activeItemIndexRef.current + 1) % items.length);
       } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
-        newIndex = (activeItemIndexRef.current - 1 + numItems) % numItems;
-      }
-
-      if (newIndex !== activeItemIndexRef.current) {
-        updateActiveContent(newIndex);
-
-        const itemInitialAngle = newIndex * angleIncrementRef.current - 90;
-        const requiredRotationProgress = (270 - itemInitialAngle + 360 * 5) % 360;
-        const scrollProgressTarget = requiredRotationProgress / 360;
-
-        gsap.to(window, {
-            scrollTo: {
-                y: scrollTriggerInstanceRef.current.start + (scrollTriggerInstanceRef.current.end - scrollTriggerInstanceRef.current.start) * scrollProgressTarget,
-                autoKill: true
-            },
-            duration: 0.7,
-            ease: 'power2.inOut',
-            onComplete: () => {
-                // After scroll, ensure ScrollTrigger updates its internal progress if necessary
-                ScrollTrigger.refresh();
-            }
-        });
+        scrollToItem((activeItemIndexRef.current - 1 + items.length) % items.length);
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
 
-    // Set initial content
-    updateActiveContent(0);
+    updateContentForEffect(0);
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
@@ -192,10 +218,16 @@ const CircularImageGallery: React.FC = () => {
       if (scrollTriggerInstanceRef.current) {
         scrollTriggerInstanceRef.current.kill();
       }
-      items.forEach(item => gsap.killTweensOf(item));
+      items.forEach(item => {
+        gsap.killTweensOf(item);
+        // It's good practice to remove event listeners here, especially if items can be re-rendered
+        // However, since these items are static within this component's lifecycle and get cleaned up,
+        // we might not strictly need to remove individual mouseover/mouseout/click here if performance isn't an issue.
+        // For robustness: item.removeEventListener('mouseover', ...); item.removeEventListener('mouseout', ...); item.removeEventListener('click', ...);
+      });
       if (gallery) gsap.killTweensOf(gallery);
     };
-  }, [galleryItemsData]);
+  }, [galleryItemsData, setCurrentImageDescription, scrollToItem]);
 
   return (
     <>
