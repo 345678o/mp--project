@@ -329,7 +329,7 @@ const CircularImageGallery: React.FC = () => {
             <p className="description">{currentImageDetails.description}</p>
             <p className="stats">{currentImageDetails.stats}</p>
             <p className="view-project-link-text">
-              <a href="/projects" target="_blank" rel="noopener noreferrer">Click here to view all projects</a>
+              <a href="/projects" target="_blank" rel="noopener noreferrer">Click here to view the project</a>
             </p>
           </>
         )}
