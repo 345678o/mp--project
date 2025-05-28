@@ -280,4 +280,32 @@ body {
     height: 45vw;
     top: 55%;
   }
+}
+
+/* Custom Scrollbar Styling (WebKit browsers) */
+/* For the entire page, apply to html or body. If component-specific, a wrapper div */
+body::-webkit-scrollbar {
+  width: 8px; /* Thin scrollbar */
+}
+
+body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1); /* Light track, almost transparent */
+  border-radius: 10px;
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: #2563eb; /* Primary Blue from your palette */
+  border-radius: 10px;
+  border: 2px solid transparent; /* Creates padding around thumb */
+  background-clip: content-box; /* Important for border to act as padding */
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background-color: #1d4ed8; /* Darker Blue on hover */
+}
+
+/* For Firefox */
+html {
+  scrollbar-width: thin; /* "auto" or "thin" */
+  scrollbar-color: #2563eb rgba(255, 255, 255, 0.1); /* thumb and track color */
 } 

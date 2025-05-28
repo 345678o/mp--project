@@ -1,0 +1,48 @@
+/* Apply to body or a specific wrapper if you want to restrict where the custom cursor is active */
+/* If applied to body, ensure it doesn't conflict with other cursor styles from libraries */
+body {
+  /* cursor: none; This is handled by JS in the component now */
+}
+
+.custom-cursor-dot, 
+.custom-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none; /* Important: allows clicking through the cursor elements */
+  border-radius: 50%;
+  transform: translate(-50%, -50%); /* Center the dot/ring on the cursor position */
+  z-index: 9999; /* Ensure it's on top of everything */
+}
+
+.custom-cursor-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #2563eb; /* Blue dot - using your primary blue */
+  /* mix-blend-mode: normal;  If you prefer dot to be solid color */
+}
+
+.custom-cursor-ring {
+  width: 30px;
+  height: 30px;
+  border: 2px solid #256699; /* Black ring (Tailwind gray-900) */
+  /* mix-blend-mode: normal; If you prefer ring to be solid color */
+}
+
+/* Optional: Hide custom cursor on interactive elements if it feels distracting */
+/*
+a:hover ~ .custom-cursor-dot,
+a:hover ~ .custom-cursor-ring,
+button:hover ~ .custom-cursor-dot,
+button:hover ~ .custom-cursor-ring {
+  opacity: 0;
+}
+*/
+
+/* Hide on text input focus */
+input:focus ~ .custom-cursor-dot,
+input:focus ~ .custom-cursor-ring,
+textarea:focus ~ .custom-cursor-dot,
+textarea:focus ~ .custom-cursor-ring {
+    display: none;
+} 

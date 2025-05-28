@@ -6,6 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import './CircularImageGallery.css';
 import { FloatingNav } from '@/components/ui/floating-navbar';
+import CustomCursor from '@/components/ui/CustomCursor';
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
@@ -306,6 +307,7 @@ const CircularImageGallery: React.FC = () => {
 
   return (
     <>
+      <CustomCursor />
       <FloatingNav navItems={navItems} />
 
       <div className="background-text" ref={backgroundTextRef}>
