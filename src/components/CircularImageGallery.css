@@ -244,6 +244,22 @@ body {
   .image-specific-text .view-project-link-text {
     text-align: center; /* Ensures it remains centered on mobile */
   }
+
+  /* Media Query for adjusting item transform-origin on mobile */
+  .item {
+    /* The initial transform-origin is 50% 400px set in JS, this will be overridden by JS.
+       This CSS rule here is more of a placeholder or for non-JS scenarios.
+       The actual adjustment needs to be done in the JS `gsap.set` call for items.
+       However, if the JS sets `transformOrigin`, direct CSS override might not work as expected
+       without re-running the JS logic or using `!important` (which is not ideal).
+
+       Let's assume the JS sets `transformOrigin` only once initially based on window width,
+       or we ensure JS re-evaluates.
+       A better approach is to modify the JS directly if `transformOrigin` is dynamically set.
+       For now, let's add a CSS rule, and if it doesn't take effect, we'll modify the JS.
+    */
+    /* transform-origin: 50% 420px !important; */ /* Potentially needed if JS sets it directly on element style */
+  }
 }
 
 @media (max-width: 480px) {

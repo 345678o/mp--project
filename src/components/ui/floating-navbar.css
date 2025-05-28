@@ -22,6 +22,7 @@
   border: 1px solid rgba(0, 0, 0, 0.05); /* Very subtle border */
   pointer-events: auto; /* Crucial: re-enable pointer events for the actual navbar */
   border-radius: 30px; /* Pill shape for modern look */
+  transition: height 0.3s ease, background-color 0.3s ease; /* Added for smooth open/close */
 }
 
 .nav-item-base {
@@ -51,31 +52,96 @@
   align-items: center;
 }
 
-/* Responsive adjustments if needed */
+/* Hamburger Menu Styles */
+.hamburger-menu {
+  display: none; /* Hidden by default, shown in mobile media query */
+  flex-direction: column;
+  justify-content: space-around;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 10;
+  margin-right: 10px; /* Spacing from the edge or other items if any */
+}
+
+.hamburger-menu span {
+  width: 24px;
+  height: 2px;
+  background-color: #2563eb; /* Blue color for bars */
+  border-radius: 1px;
+  transition: all 0.3s linear;
+}
+
+/* Styles for hamburger animation (optional, can be enhanced) */
+.floating-nav-base.mobile-menu-open .hamburger-menu span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+.floating-nav-base.mobile-menu-open .hamburger-menu span:nth-child(2) {
+  opacity: 0;
+}
+.floating-nav-base.mobile-menu-open .hamburger-menu span:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+.desktop-nav-items {
+  display: flex;
+  align-items: center;
+}
+
+.mobile-nav-items {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding-top: 10px; /* Space from hamburger */
+}
+
+.mobile-nav-items .nav-item-base {
+  padding: 10px 20px;
+  margin: 5px 0;
+  text-align: left;
+  width: calc(100% - 40px); /* Full width minus padding */
+  justify-content: flex-start;
+}
+
+/* Initial Media Queries (from your existing CSS) */
 @media (max-width: 768px) {
   .floating-nav-base {
-    padding: 0.6em 1em;
+    /* Keep padding if needed, but width might need to be more flexible */
+    /* padding: 0.6em 1em; */ 
     top: 0.5em;
   }
-  .nav-item-base {
-    font-size: 15px;
-    padding: 0.4em 0.8em;
-    margin: 0 0.3em;
+  .floating-nav-base.mobile {
+    flex-direction: column; /* Stack hamburger and items vertically when mobile */
+    align-items: flex-start; /* Align hamburger to the left */
+    padding: 0.5em;
+    width: auto; /* Allow it to be small for just hamburger */
+    min-width: 50px; /* Minimum width for hamburger */
   }
+  .floating-nav-base.mobile.mobile-menu-open {
+     width: calc(100vw - 2em); /* Expand width when menu is open */
+     max-width: 300px; /* Optional: max width for the open mobile menu */
+     align-items: stretch; /* Stretch items inside */
+  }
+  .hamburger-menu {
+    display: flex; /* Show hamburger on mobile */
+    margin: 0.5em; /* Add some margin around hamburger */
+  }
+  .desktop-nav-items {
+    display: none; /* Hide desktop links container on mobile */
+  }
+  /* .nav-item-base in mobile is handled by .mobile-nav-items .nav-item-base */
 }
 
 @media (max-width: 480px) {
-  .floating-nav-base {
-    width: calc(100% - 1em); /* More width on small screens */
-    padding: 0.5em;
-    gap: 0.2em;
+  .floating-nav-base.mobile.mobile-menu-open {
+    width: calc(100vw - 1em); /* Adjust for very small screens */
   }
-  .nav-item-base {
-    font-size: 13px;
-    padding: 0.4em 0.5em;
-    margin: 0 0.1em;
+  .mobile-nav-items .nav-item-base {
+    font-size: 14px; 
+    padding: 8px 15px;
   }
-  .nav-item-base.has-icon .nav-icon-wrapper {
-    margin-right: 0.3em;
-  }
+  /* .nav-item-base specific adjustments from previous file are mostly covered now */
 } 

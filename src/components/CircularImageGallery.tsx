@@ -210,19 +210,34 @@ const CircularImageGallery: React.FC = () => {
     gsap.set(previewImgContainer, { opacity: 0 });
     gsap.set(descriptionText, { opacity: 0 });
 
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    const tl = gsap.timeline({ 
+      defaults: { ease: "power3.out" },
+      delay: 0.8
+    });
+
     tl.to(items, {
       y: 0,
       scale: 1,
       opacity: 1,
       rotationZ: (idx: number) => idx * angleIncrement - 90,
-      duration: 1.2,
+      duration: 0.8,
       stagger: 0.03,
-      delay: 0.5
-    })
-    .to(bgText, { color: 'rgba(0, 0, 0, 0.12)', duration: 0.8 }, "<0.0")
-    .to(previewImgContainer, { opacity: 1, duration: 0.5 }, ">-0.3")
-    .to(descriptionText, { opacity: 1, duration: 0.5 }, ">");
+    });
+
+    tl.to(bgText, { 
+        color: 'rgba(0, 0, 0, 0.12)', 
+        duration: 1.5,
+    }, 0.2);
+
+    tl.to(previewImgContainer, { 
+        opacity: 1, 
+        duration: 0.5 
+    }, ">");
+
+    tl.to(descriptionText, { 
+        opacity: 1, 
+        duration: 0.5 
+    }, ">");
 
     const updateContentForEffect = (index: number) => {
         updateActiveContentState(
@@ -303,6 +318,8 @@ const CircularImageGallery: React.FC = () => {
     { name: "Projects", link: "/projects" },
     { name: "Contact Us", link: "/contact" },
     { name: "Make Your Own Projects", link: "/make-your-own" },
+    { name: "Mentors", link: "/mentors" },
+    { name: "Resources", link: "/resources" },
   ];
 
   return (

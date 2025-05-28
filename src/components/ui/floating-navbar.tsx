@@ -22,6 +22,17 @@ export const FloatingNav = ({
   const { scrollYProgress } = useScroll();
   const [visible, setVisible] = useState(true); // Default to true to be initially visible
   const lastScrollY = useRef(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileView, setIsMobileView] = useState(false);
+
+  useEffect(() => {
+    const checkMobileView = () => {
+      setIsMobileView(window.innerWidth < 768);
+    };
+    checkMobileView();
+    window.addEventListener('resize', checkMobileView);
+    return () => window.removeEventListener('resize', checkMobileView);
+  }, []);
 
   useMotionValueEvent(scrollYProgress, "change", () => {
     const currentScrollYVal = scrollYProgress.get();
@@ -35,6 +46,7 @@ export const FloatingNav = ({
           setVisible(true);
         } else { // Scrolling down
           setVisible(false);
+          setIsMobileMenuOpen(false); // Close mobile menu on scroll down
         }
       }
       lastScrollY.current = currentScrollYVal;
@@ -53,6 +65,10 @@ export const FloatingNav = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   return (
     // Added a fixed wrapper for centering
     <div className="floating-nav-centering-wrapper">
@@ -63,25 +79,37 @@ export const FloatingNav = ({
             y: 0,
           }}
           animate={{
-            y: visible ? 0 : -100,
+            y: visible ? 0 : -120,
             opacity: visible ? 1 : 0,
           }}
           transition={{
             duration: 0.2,
           }}
-          className={`floating-nav-base ${className || ''}`}
+          className={`floating-nav-base ${className || ''} ${isMobileView ? 'mobile' : ''} ${isMobileMenuOpen ? 'mobile-menu-open' : ''}`}
         >
-          {navItems.map((navItem: NavItem, idx: number) => (
-            <a
-              key={`link=${idx}`}
-              href={navItem.link}
-              className={`nav-item-base ${navItem.icon ? 'has-icon' : ''}` // Add class if icon exists for styling
-              }
-            >
-              {navItem.icon && <span className="nav-icon-wrapper">{navItem.icon}</span>}
-              <span className="nav-text-wrapper">{navItem.name}</span>
-            </a>
-          ))}
+          {isMobileView && (
+            <button className="hamburger-menu" onClick={toggleMobileMenu} aria-label="Toggle menu">
+              <span />
+              <span />
+              <span />
+            </button>
+          )}
+          
+          {(!isMobileView || isMobileMenuOpen) && (
+            <div className={`nav-items-container ${isMobileView ? 'mobile-nav-items' : 'desktop-nav-items'}`}>
+              {navItems.map((navItem: NavItem, idx: number) => (
+                <a
+                  key={`link=${idx}`}
+                  href={navItem.link}
+                  className={`nav-item-base ${navItem.icon ? 'has-icon' : ''}`}
+                  onClick={() => isMobileView && setIsMobileMenuOpen(false)} // Close menu on item click
+                >
+                  {navItem.icon && <span className="nav-icon-wrapper">{navItem.icon}</span>}
+                  <span className="nav-text-wrapper">{navItem.name}</span>
+                </a>
+              ))}
+            </div>
+          )}
         </motion.div>
       </AnimatePresence>
     </div>
