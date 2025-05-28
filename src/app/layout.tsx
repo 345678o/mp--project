@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Script from "next/script";
 // import "./globals.css"; // Commenting out default global styles
 
 const inter = Inter({ subsets: ["latin"] });
@@ -18,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <Script type="module" src="https://cdn.jsdelivr.net/npm/ldrs/dist/auto/helix.js" strategy="beforeInteractive" />
+        {/* <Script type="module" src="https://cdn.jsdelivr.net/npm/ldrs/dist/auto/helix.js" strategy="beforeInteractive" /> */}
       </head>
       <body className={inter.className}>{children}</body>
     </html>

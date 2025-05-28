@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useMemo, useState, useCallback } from 'react'
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
-// Removed Helix import from 'ldrs/react'
+import { Helix } from 'ldrs/react';
 import './CircularImageGallery.css';
 import { FloatingNav } from '@/components/ui/floating-navbar';
 import CustomCursor from '@/components/ui/CustomCursor';
@@ -383,24 +383,25 @@ const CircularImageGallery: React.FC = () => {
   ];
 
   if (!isClientMounted || showLoader) {
-    // Note: For web components, ensure Next.js knows this is custom element if issues persist.
-    // You might need to declare global { namespace JSX { interface IntrinsicElements { 'l-helix': any; } } }
-    // in a .d.ts file if TypeScript complains about <l-helix>.
+    // Using the Helix React component for the loader
     return (
-      <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          width: '100vw', 
-          height: '100vh', 
-          backgroundColor: 'white', /* Changed to white */
-          position: 'fixed', 
+      <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: '100vw',
+          height: '100vh',
+          backgroundColor: 'white',
+          position: 'fixed',
           top: 0,
           left: 0,
-          zIndex: 9999 
+          zIndex: 9999
         }}>
-        {/* Using the web component for the loader */}
-        <l-helix size="45" speed="2.5" color="#2563eb"></l-helix> {/* Changed to blue */}
+        <Helix
+          size={45} // Props are passed as numbers/strings
+          speed={2.5}
+          color="#2563eb"
+        />
       </div>
     );
   }
