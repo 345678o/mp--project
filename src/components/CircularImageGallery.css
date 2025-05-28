@@ -22,7 +22,7 @@ body {
 
 .gallery {
   position: absolute;
-  top: 19%;
+  top: 19%; /* May need adjustment, e.g., to 15% if it looks too low */
   left: 49%;
   transform-style: preserve-3d;
   transform: translateX(-50%) rotateX(55deg);
@@ -33,10 +33,10 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 45px;
-  height: 60px;
+  width: 36px; /* Scaled down from 45px */
+  height: 48px; /* Scaled down from 60px */
   background: #b0b0b0;
-  margin: 10px;
+  margin: 8px; /* Scaled down from 10px */
   transform-style: preserve-3d;
   cursor: pointer; /* Added cursor pointer for better UX */
 }
@@ -52,8 +52,8 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 300px;
-  height: 200px;
+  width: 240px; /* Scaled down from 300px */
+  height: 160px; /* Scaled down from 200px */
   overflow: hidden;
   z-index: 0; /* Ensure this is below nav/footer if they are present */
 }
@@ -68,9 +68,9 @@ body {
 .background-text {
   position: fixed;
   top: 50%;
-  left: 0.5em; /* Reduced padding further */
+  left: 0.4em; /* Scaled down from 0.5em */
   transform: translateY(-50%);
-  font-size: 12vw; /* Increased base font size */
+  font-size: 9.6vw; /* Scaled down from 12vw */
   font-weight: bold;
   color: #000000; /* Changed to solid black for initial state */
   z-index: -1;
@@ -84,33 +84,33 @@ body {
 .image-specific-text {
   position: fixed;
   top: 50%;
-  right: 3em;
+  right: 2.4em; /* Scaled down from 3em */
   transform: translateY(-50%);
-  width: 320px;
-  padding: 2em;
-  background-color: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  width: 256px; /* Scaled down from 320px */
+  padding: 1.6em; /* Scaled down from 2em */
+  background-color: rgba(255, 255, 255, 0.55); /* Slightly reduced opacity for more blur visibility */
+  backdrop-filter: blur(20px); /* Increased blur value */
+  -webkit-backdrop-filter: blur(20px); /* Increased blur value for Safari */
   border-radius: 0;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25); /* Lighter border for glass effect */
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08); /* Scaled down shadow */
   color: #2c3e50;
   font-family: "Inter", "Circular Std", sans-serif;
-  font-size: 16px;
+  font-size: 12.8px; /* Scaled down from 16px */
   font-weight: 400;
   z-index: 50;
   pointer-events: auto;
   transition: opacity 0.3s ease, transform 0.3s ease;
   display: flex;
   flex-direction: column;
-  gap: 0.8em;
+  gap: 0.64em; /* Scaled down from 0.8em */
 }
 
 .image-specific-text h2 {
-  font-size: 1.8em;
+  font-size: 1.44em; /* Scaled down from 1.8em */
   font-weight: 600;
   color: #1a2533;
-  margin: 0 0 0.2em 0;
+  margin: 0 0 0.16em 0; /* Scaled down from 0.2em */
   line-height: 1.2;
 }
 
@@ -127,24 +127,24 @@ body {
 }
 
 .image-specific-text .description {
-  font-size: 0.95em;
+  font-size: 0.76em; /* Scaled down from 0.95em */
   line-height: 1.6;
   margin: 0;
   color: #34495e;
 }
 
 .image-specific-text .stats {
-  font-size: 0.85em;
+  font-size: 0.68em; /* Scaled down from 0.85em */
   color: #7f8c8d;
-  margin: 0.5em 0;
+  margin: 0.4em 0; /* Scaled down from 0.5em */
   font-style: italic;
 }
 
 .image-specific-text .view-project-link-text {
   margin-top: auto; /* Push to bottom if other content is short */
   text-align: center; /* Center the link text if desired */
-  font-size: 0.9em;
-  padding: 0.5em 0;
+  font-size: 0.72em; /* Scaled down from 0.9em */
+  padding: 0.4em 0; /* Scaled down from 0.5em */
 }
 
 .image-specific-text .view-project-link-text a {
@@ -160,7 +160,7 @@ body {
 /* Styles for the new standalone button */
 .standalone-explore-button-container {
   position: fixed;
-  bottom: 30px; 
+  bottom: 24px; /* Scaled down from 30px */
   left: 50%;
   transform: translateX(-50%);
   z-index: 60; 
@@ -171,38 +171,40 @@ body {
 
 .standalone-explore-button {
   display: inline-block;
-  padding: 10px 25px; /* Adjusted padding */
+  padding: 8px 20px;
   font-family: "Inter", "Circular Std", sans-serif;
-  font-size: 15px; /* Adjusted font size */
-  font-weight: 500; /* Medium weight */
-  color: white;
-  background-color: #2563eb; /* Primary Blue - Tailwind's blue-600 */
-  border: none;
-  border-radius: 25px; /* Pill shape */
+  font-size: 12px;
+  font-weight: 500;
+  color: #2c3e50; /* Matched to description box text color */
+  background-color: rgba(255, 255, 255, 0.55); /* Matched to description box alpha */
+  border: 1px solid rgba(255, 255, 255, 0.25); /* Matched to description box border */
+  backdrop-filter: blur(20px); /* Matched to description box blur */
+  -webkit-backdrop-filter: blur(20px); /* Safari support - Matched */
+  border-radius: 20px;
   text-decoration: none;
   text-align: center;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3), 0 1px 3px rgba(0,0,0,0.08); /* Blue glow + subtle shadow */
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0,0,0,0.06);
 }
 
 .standalone-explore-button:hover {
-  background-color: #1d4ed8; /* Darker Blue - Tailwind's blue-700 */
-  color: white;
-  transform: translateY(-2px) scale(1.02); /* Slight lift and scale */
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35), 0 2px 4px rgba(0,0,0,0.1); /* Enhanced shadow */
+  background-color: rgba(255, 255, 255, 0.7); /* Slightly less transparent on hover */
+  color: #1a2533;  /* Darker text on hover for better contrast */
+  transform: translateY(-1.6px) scale(1.016);
+  box-shadow: 0 5px 13px rgba(0, 0, 0, 0.12), 0 1.6px 3.2px rgba(0,0,0,0.08);
 }
 
 .standalone-explore-button:active {
-  transform: translateY(-1px) scale(0.98); /* Click effect */
-  background-color: #1e40af; /* Even darker blue - Tailwind's blue-800 */
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  transform: translateY(-0.8px) scale(0.984);
+  background-color: rgba(255, 255, 255, 0.45); /* More transparent on click */
+  box-shadow: 0 1.6px 6.4px rgba(0, 0, 0, 0.1);
 }
 
 /* Media Queries for Responsive Adjustments */
-@media (max-width: 768px) {
+@media (max-width: 614px) { /* Scaled down from 768px (768*0.8) */
   .background-text {
-    font-size: 15vw; 
+    font-size: 12vw; /* Scaled from 15vw */
     left: 50%;
     top: 35%;
     transform: translateX(-50%) translateY(-50%); 
@@ -211,10 +213,10 @@ body {
   }
 
   .preview-img {
-    width: 60vw; 
-    height: 40vw;
-    max-width: 280px; 
-    max-height: 186px; 
+    width: 48vw; /* Scaled from 60vw */
+    height: 32vw; /* Scaled from 40vw */
+    max-width: 224px; /* Scaled from 280px */
+    max-height: 149px; /* Scaled from 186px */
     top: 54%;
   }
 
@@ -224,22 +226,22 @@ body {
     top: auto; 
     bottom: 5%; 
     transform: translateX(-50%); 
-    width: 88vw; 
-    max-width: 380px;
-    padding: 1.5em;
-    font-size: 15px;
-    gap: 0.6em;
+    width: 70.4vw; /* Scaled from 88vw */
+    max-width: 304px; /* Scaled from 380px */
+    padding: 1.2em; /* Scaled from 1.5em */
+    font-size: 12px; /* Scaled from 15px */
+    gap: 0.48em; /* Scaled from 0.6em */
   }
 
   .image-specific-text h2 {
-    font-size: 1.6em;
+    font-size: 1.28em; /* Scaled from 1.6em */
   }
   .standalone-explore-button-container {
-    bottom: 25px; /* Adjusted for better spacing */
+    bottom: 20px; /* Scaled from 25px */
   }
   .standalone-explore-button {
-    padding: 10px 22px;
-    font-size: 14px;
+    padding: 8px 17.6px; /* Scaled from 10px 22px */
+    font-size: 11.2px; /* Scaled from 14px */
   }
   .image-specific-text .view-project-link-text {
     text-align: center; /* Ensures it remains centered on mobile */
@@ -262,29 +264,29 @@ body {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 384px) { /* Scaled down from 480px */
   .background-text {
-    font-size: 18vw; 
+    font-size: 14.4vw; /* Scaled from 18vw */
     top: 33%;
   }
 
   .image-specific-text {
-    width: 92vw;
-    padding: 1.2em;
-    font-size: 14px;
-    gap: 0.5em;
+    width: 73.6vw; /* Scaled from 92vw */
+    padding: 0.96em; /* Scaled from 1.2em */
+    font-size: 11.2px; /* Scaled from 14px */
+    gap: 0.4em; /* Scaled from 0.5em */
     bottom: 3%;
   }
   .image-specific-text h2 {
-    font-size: 1.4em;
+    font-size: 1.12em; /* Scaled from 1.4em */
   }
   .standalone-explore-button-container {
-    bottom: 20px;
-    width: calc(100% - 40px); /* More inset */
+    bottom: 16px; /* Scaled from 20px */
+    width: calc(100% - 32px); /* Scaled from 40px */
   }
   .standalone-explore-button {
-    padding: 12px 20px; /* More vertical padding for tapability */
-    font-size: 14px;
+    padding: 9.6px 16px; /* Scaled from 12px 20px */
+    font-size: 11.2px; /* Scaled from 14px */
     width: 100%; 
   }
   .image-specific-text .view-project-link-text {
@@ -292,8 +294,8 @@ body {
   }
   
   .preview-img {
-    width: 70vw;
-    height: 45vw;
+    width: 56vw; /* Scaled from 70vw */
+    height: 36vw; /* Scaled from 45vw */
     top: 55%;
   }
 }

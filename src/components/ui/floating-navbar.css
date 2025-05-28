@@ -12,16 +12,16 @@
   font-family: "Inter", "Circular Std", sans-serif; /* Changed to Inter, fallback to Circular Std */
   display: inline-flex; /* Reverted to inline-flex, to be centered by text-align of parent */
   align-items: center;
-  padding: 0.6em 0.8em; /* Slightly less vertical, more compact */
-  background-color: rgba(255, 255, 255, 0.9); /* Whiter, slightly more opaque */
-  backdrop-filter: blur(10px); /* Frosted glass effect, adjust as needed */
-  -webkit-backdrop-filter: blur(10px); /* Safari support */
+  padding: 0.48em 0.64em; /* Scaled down from 0.6em 0.8em */
+  background-color: rgba(255, 255, 255, 0.55); /* Matched to description box alpha */
+  backdrop-filter: blur(20px); /* Matched to description box blur */
+  -webkit-backdrop-filter: blur(20px); /* Safari support - Matched */
   will-change: backdrop-filter; /* Added for potentially better performance/rendering of blur */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07); /* Softer, more diffused shadow */
+  box-shadow: 0 1.6px 6.4px rgba(0, 0, 0, 0.08); /* Scaled down shadow */
   /* z-index is on wrapper, but can be here too if needed for stacking context */
-  border: 1px solid rgba(0, 0, 0, 0.05); /* Very subtle border */
+  border: 1px solid rgba(255, 255, 255, 0.25); /* Matched to description box border */
   pointer-events: auto; /* Crucial: re-enable pointer events for the actual navbar */
-  border-radius: 30px; /* Pill shape for modern look */
+  border-radius: 24px; /* Scaled down from 30px */
   transition: height 0.3s ease, background-color 0.3s ease; /* Added for smooth open/close */
 }
 
@@ -29,10 +29,10 @@
   text-decoration: none;
   color: #2563eb; /* Primary Blue for text - Tailwind's blue-600 */
   font-weight: 500; /* Consider adjusting if Inter has different weight appearance */
-  font-size: 15px; /* Slightly smaller for refined look */
-  padding: 0.5em 1.2em; /* More horizontal padding for spacing */
-  margin: 0 0.2em; /* Spacing between links */
-  border-radius: 20px; /* Rounded inner items */
+  font-size: 12px; /* Scaled down from 15px */
+  padding: 0.4em 0.96em; /* Scaled down from 0.5em 1.2em */
+  margin: 0 0.16em; /* Scaled down from 0.2em */
+  border-radius: 16px; /* Scaled down from 20px */
   transition: background-color 0.2s ease, color 0.2s ease;
   display: flex; /* For icon alignment if used */
   align-items: center; /* For icon alignment if used */
@@ -57,33 +57,33 @@
   display: none; /* Hidden by default, shown in mobile media query */
   flex-direction: column;
   justify-content: space-around;
-  width: 24px;
-  height: 24px;
+  width: 19px; /* Scaled down from 24px */
+  height: 19px; /* Scaled down from 24px */
   background: transparent;
   border: none;
   cursor: pointer;
   padding: 0;
   z-index: 10;
-  margin-right: 10px; /* Spacing from the edge or other items if any */
+  margin-right: 8px; /* Scaled down from 10px */
 }
 
 .hamburger-menu span {
-  width: 24px;
-  height: 2px;
+  width: 19px; /* Scaled down from 24px */
+  height: 1.6px; /* Scaled down from 2px */
   background-color: #2563eb; /* Blue color for bars */
-  border-radius: 1px;
+  border-radius: 0.8px; /* Scaled down from 1px */
   transition: all 0.3s linear;
 }
 
 /* Styles for hamburger animation (optional, can be enhanced) */
 .floating-nav-base.mobile-menu-open .hamburger-menu span:nth-child(1) {
-  transform: rotate(45deg) translate(5px, 5px);
+  transform: rotate(45deg) translate(4px, 4px); /* Approx scaled from 5px */
 }
 .floating-nav-base.mobile-menu-open .hamburger-menu span:nth-child(2) {
   opacity: 0;
 }
 .floating-nav-base.mobile-menu-open .hamburger-menu span:nth-child(3) {
-  transform: rotate(-45deg) translate(5px, -5px);
+  transform: rotate(-45deg) translate(4px, -4px); /* Approx scaled from 5px */
 }
 
 .desktop-nav-items {
@@ -95,39 +95,39 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding-top: 10px; /* Space from hamburger */
+  padding-top: 8px; /* Scaled down from 10px */
 }
 
 .mobile-nav-items .nav-item-base {
-  padding: 10px 20px;
-  margin: 5px 0;
+  padding: 8px 16px; /* Scaled from 10px 20px */
+  margin: 4px 0; /* Scaled from 5px 0 */
   text-align: left;
-  width: calc(100% - 40px); /* Full width minus padding */
+  width: calc(100% - 32px); /* Scaled from 40px */
   justify-content: flex-start;
 }
 
 /* Initial Media Queries (from your existing CSS) */
-@media (max-width: 768px) {
+@media (max-width: 614px) { /* Scaled from 768px */
   .floating-nav-base {
     /* Keep padding if needed, but width might need to be more flexible */
     /* padding: 0.6em 1em; */ 
-    top: 0.5em;
+    top: 0.4em; /* Scaled from 0.5em */
   }
   .floating-nav-base.mobile {
     flex-direction: column; /* Stack hamburger and items vertically when mobile */
     align-items: flex-start; /* Align hamburger to the left */
-    padding: 0.5em;
+    padding: 0.4em; /* Scaled from 0.5em */
     width: auto; /* Allow it to be small for just hamburger */
-    min-width: 50px; /* Minimum width for hamburger */
+    min-width: 40px; /* Minimum width for hamburger */
   }
   .floating-nav-base.mobile.mobile-menu-open {
-     width: calc(100vw - 2em); /* Expand width when menu is open */
-     max-width: 300px; /* Optional: max width for the open mobile menu */
+     width: calc(100vw - 1.6em); /* Scaled from 2em */
+     max-width: 240px; /* Scaled from 300px */
      align-items: stretch; /* Stretch items inside */
   }
   .hamburger-menu {
     display: flex; /* Show hamburger on mobile */
-    margin: 0.5em; /* Add some margin around hamburger */
+    margin: 0.4em; /* Scaled from 0.5em */
   }
   .desktop-nav-items {
     display: none; /* Hide desktop links container on mobile */
@@ -135,13 +135,13 @@
   /* .nav-item-base in mobile is handled by .mobile-nav-items .nav-item-base */
 }
 
-@media (max-width: 480px) {
+@media (max-width: 384px) { /* Scaled from 480px */
   .floating-nav-base.mobile.mobile-menu-open {
-    width: calc(100vw - 1em); /* Adjust for very small screens */
+    width: calc(100vw - 0.8em); /* Scaled from 1em */
   }
   .mobile-nav-items .nav-item-base {
-    font-size: 14px; 
-    padding: 8px 15px;
+    font-size: 11.2px; /* Scaled from 14px (already in previous scaling) or 12px * 0.8 = 9.6px - using 11.2px for consistency with other mobile */
+    padding: 6.4px 12px; /* Scaled from 8px 15px */
   }
   /* .nav-item-base specific adjustments from previous file are mostly covered now */
 } 

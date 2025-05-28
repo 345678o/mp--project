@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useMemo, useState, useCallback } from 'react'
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
+// Removed Helix import from 'ldrs/react'
 import './CircularImageGallery.css';
 import { FloatingNav } from '@/components/ui/floating-navbar';
 import CustomCursor from '@/components/ui/CustomCursor';
@@ -141,6 +142,11 @@ const CircularImageGallery: React.FC = () => {
   const backgroundTextRef = useRef<HTMLDivElement>(null);
   const previewImgContainerRef = useRef<HTMLDivElement>(null);
   const descriptionTextRef = useRef<HTMLDivElement>(null);
+  const floatingNavRef = useRef<HTMLDivElement>(null);
+  const exploreButtonContainerRef = useRef<HTMLDivElement>(null);
+
+  const [showLoader, setShowLoader] = useState(true);
+  const [isClientMounted, setIsClientMounted] = useState(false);
 
   const [currentImageDetails, setCurrentImageDetails] = useState<ProjectDetails>(
     sampleProjectData[0]
@@ -152,6 +158,16 @@ const CircularImageGallery: React.FC = () => {
       imgSrc: `/assets/img${(i % NUM_UNIQUE_IMAGES) + 1}.jpg`,
     }));
   }, []);
+
+  useEffect(() => {
+    setIsClientMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isClientMounted) {
+      setShowLoader(false);
+    }
+  }, [isClientMounted]);
 
   const scrollToItem = useCallback((index: number) => {
     if (!itemsRef.current || itemsRef.current.length === 0 || !scrollTriggerInstanceRef.current) return;
@@ -182,24 +198,38 @@ const CircularImageGallery: React.FC = () => {
   }, [setCurrentImageDetails]);
 
   useEffect(() => {
+    if (!isClientMounted || showLoader) {
+      return;
+    }
+
     const gallery = galleryRef.current;
     const previewImage = previewImageRef.current;
     const bgText = backgroundTextRef.current;
     const previewImgContainer = previewImgContainerRef.current;
     const descriptionText = descriptionTextRef.current;
+    const navElement = floatingNavRef.current;
+    const exploreButtonContainer = exploreButtonContainerRef.current;
 
-    if (!gallery || !previewImage || !bgText || !previewImgContainer || !descriptionText) return;
+    if (!gallery || !previewImage || !bgText || !previewImgContainer || !descriptionText || !navElement || !exploreButtonContainer) {
+      console.error('CircularImageGallery: A critical ref is missing when expected to be present.', {
+        gallery, previewImage, bgText, previewImgContainer, descriptionText, navElement, exploreButtonContainer
+      });
+      return;
+    }
 
     itemsRef.current = gallery.querySelectorAll('.item') as NodeListOf<HTMLDivElement>;
     const items = itemsRef.current;
-    if (items.length === 0) return;
+    if (items.length === 0) {
+      console.error('CircularImageGallery: No items found when expected.');
+      return;
+    }
 
     const numberOfItems = items.length;
     angleIncrementRef.current = 360 / numberOfItems;
     const angleIncrement = angleIncrementRef.current;
     
     const isMobile = window.innerWidth <= 768;
-    const itemTransformOrigin = isMobile ? '50% 420px' : '50% 400px';
+    const itemTransformOrigin = isMobile ? '50% 336px' : '50% 320px';
 
     gsap.set(items, { 
       y: window.innerHeight / 2,
@@ -212,10 +242,12 @@ const CircularImageGallery: React.FC = () => {
     gsap.set(bgText, { color: '#000000', opacity: 1 });
     gsap.set(previewImgContainer, { opacity: 0 });
     gsap.set(descriptionText, { opacity: 0 });
+    gsap.set(navElement, { y: -100, opacity: 0 });
+    gsap.set(exploreButtonContainer, { y: 100, opacity: 0 });
 
     const tl = gsap.timeline({ 
       defaults: { ease: "power3.out" },
-      delay: 0.8
+      delay: 0.1,
     });
 
     tl.to(items, {
@@ -223,23 +255,35 @@ const CircularImageGallery: React.FC = () => {
       scale: 1,
       opacity: 1,
       rotationZ: (idx: number) => idx * angleIncrement - 90,
-      duration: 0.8,
-      stagger: 0.03,
+      duration: 0.4,
+      stagger: 0.015,
     });
 
     tl.to(bgText, { 
         color: 'rgba(0, 0, 0, 0.12)', 
-        duration: 1.5,
-    }, 0.2);
+        duration: 1.0,
+    }, 0.1);
+
+    tl.to(navElement, { 
+        y: 0, 
+        opacity: 1, 
+        duration: 0.4 
+    }, "-=0.2");
+
+    tl.to(exploreButtonContainer, {
+        y: 0,
+        opacity: 1,
+        duration: 0.4
+    }, "-=0.2");
 
     tl.to(previewImgContainer, { 
         opacity: 1, 
-        duration: 0.5 
-    }, ">");
+        duration: 0.4 
+    }, ">-0.2");
 
     tl.to(descriptionText, { 
         opacity: 1, 
-        duration: 0.5 
+        duration: 0.4 
     }, ">");
 
     const updateContentForEffect = (index: number) => {
@@ -313,19 +357,49 @@ const CircularImageGallery: React.FC = () => {
       if (bgText) gsap.killTweensOf(bgText);
       if (previewImgContainer) gsap.killTweensOf(previewImgContainer);
       if (descriptionText) gsap.killTweensOf(descriptionText);
+      if (navElement) gsap.killTweensOf(navElement);
+      if (exploreButtonContainer) gsap.killTweensOf(exploreButtonContainer);
       tl.kill();
     };
-  }, [galleryItemsData, setCurrentImageDetails, scrollToItem]);
+  }, [isClientMounted, showLoader, galleryItemsData, setCurrentImageDetails, scrollToItem]);
 
   const navItems = [
+    { name: "Projects", link: "/projects" },
     { name: "Mentors", link: "/mentors" },
     { name: "Resources", link: "/resources" },
+    { name: "Contact Us", link: "/contact" },
+    { name: "Make Your Own Projects", link: "/make-your-own" },
   ];
+
+  if (!isClientMounted || showLoader) {
+    // Note: For web components, ensure Next.js knows this is custom element if issues persist.
+    // You might need to declare global { namespace JSX { interface IntrinsicElements { 'l-helix': any; } } }
+    // in a .d.ts file if TypeScript complains about <l-helix>.
+    return (
+      <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          width: '100vw', 
+          height: '100vh', 
+          backgroundColor: 'white', /* Changed to white */
+          position: 'fixed', 
+          top: 0,
+          left: 0,
+          zIndex: 9999 
+        }}>
+        {/* Using the web component for the loader */}
+        <l-helix size="45" speed="2.5" color="#2563eb"></l-helix> {/* Changed to blue */}
+      </div>
+    );
+  }
 
   return (
     <>
       <CustomCursor />
-      <FloatingNav navItems={navItems} />
+      <div ref={floatingNavRef} style={{ position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 1000 }}>
+        <FloatingNav navItems={navItems} />
+      </div>
 
       <div className="background-text" ref={backgroundTextRef}>
         Micro
@@ -337,7 +411,11 @@ const CircularImageGallery: React.FC = () => {
         <img ref={previewImageRef} src="/assets/img1.jpg" alt="Preview" />
       </div>
 
-      <div className="image-specific-text" ref={descriptionTextRef}>
+      <div 
+        className="image-specific-text" 
+        ref={descriptionTextRef} 
+        style={showLoader ? { opacity: 0, visibility: 'hidden' } : {}}
+      >
         {currentImageDetails && (
           <>
             <h2>
@@ -354,9 +432,9 @@ const CircularImageGallery: React.FC = () => {
         )}
       </div>
 
-      <div className="standalone-explore-button-container">
+      <div className="standalone-explore-button-container" ref={exploreButtonContainerRef}>
         <a href="/projects" className="standalone-explore-button" target="_blank" rel="noopener noreferrer">
-          Explore More Projects
+          Explore All Projects
         </a>
       </div>
 
