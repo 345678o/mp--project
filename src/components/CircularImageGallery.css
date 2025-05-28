@@ -87,15 +87,15 @@ footer {
 .background-text {
   position: fixed;
   top: 50%;
-  left: 1em; /* Adjusted for potentially wider text due to line break */
+  left: 0.5em; /* Reduced padding further */
   transform: translateY(-50%);
-  font-size: 10vw; /* Responsive font size */
+  font-size: 12vw; /* Increased base font size */
   font-weight: bold;
-  color: rgba(0, 0, 0, 0.08); /* Increased opacity slightly */
-  z-index: -1; /* Behind everything else */
-  pointer-events: none; /* Non-interactive */
-  line-height: 0.9; /* Tighter line height for stacked text */
-  text-align: left; /* Ensures left alignment */
+  color: rgba(0, 0, 0, 0.12); /* Adjusted for slightly darker text */
+  z-index: -1;
+  pointer-events: none;
+  line-height: 0.95; /* Adjusted line height */
+  text-align: left;
 }
 
 .image-specific-text {
@@ -103,21 +103,85 @@ footer {
   top: 50%;
   right: 2em;
   transform: translateY(-50%);
-  width: 280px; /* Slightly wider for more text */
+  width: 280px;
   padding: 1.5em;
-  background-color: rgba(255, 255, 255, 0.95); /* Lighter, more opaque background */
-  border-radius: 12px; /* Softer, more modern radius */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* Softer, more diffused shadow */
-  color: #2c3e50; /* Darker, more readable text */
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* Modern system font stack */
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  color: #2c3e50;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 15px;
   font-weight: 400;
   z-index: 50;
   pointer-events: none;
-  transition: opacity 0.3s ease; /* Smooth transition if opacity changes */
+  transition: opacity 0.3s ease, transform 0.3s ease; /* Added transform to transition */
 }
 
 .image-specific-text p {
   margin: 0;
   line-height: 1.65;
+}
+
+/* Media Queries for Responsive Adjustments */
+@media (max-width: 768px) {
+  .background-text {
+    font-size: 15vw; 
+    left: 50%;
+    top: 35%; /* As per your last adjustment */
+    transform: translateX(-50%) translateY(-50%); 
+    text-align: center;
+    line-height: 1;
+  }
+
+  .preview-img {
+    width: 60vw; 
+    height: 40vw;
+    max-width: 280px; 
+    max-height: 186px; 
+    top: 54%; /* Moved below center */
+  }
+
+  .image-specific-text {
+    left: 50%;
+    right: auto; 
+    top: auto; 
+    bottom: 8%; 
+    transform: translateX(-50%); 
+    width: 85vw; 
+    text-align: center;
+    font-size: 14px;
+    padding: 1em;
+  }
+
+  nav {
+    padding: 1em;
+    font-size: 12px;
+  }
+
+  footer {
+    display: none; /* Remove footer on mobile */
+  }
+
+  nav p:first-child,
+  footer p:first-child {
+     /* Optionally hide or shorten some text in nav/footer on mobile if needed */
+  }
+}
+
+@media (max-width: 480px) {
+  .background-text {
+    font-size: 18vw; 
+    top: 33%; /* Adjusted to keep relation with preview image */
+  }
+
+  .image-specific-text {
+    bottom: 5%;
+    font-size: 13px;
+  }
+  
+  .preview-img {
+    width: 70vw;
+    height: 45vw;
+    top: 55%; /* Moved below center for very small screens */
+  }
 } 
