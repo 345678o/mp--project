@@ -1,0 +1,81 @@
+.floating-nav-centering-wrapper {
+  position: fixed;
+  top: 1.5em; /* Slightly more space from top */
+  left: 0;
+  width: 100%;
+  text-align: center; /* This will center the inline-flex .floating-nav-base */
+  z-index: 1000; /* Ensure wrapper is also on top */
+  pointer-events: none; /* Allow clicks to pass through the wrapper */
+}
+
+.floating-nav-base {
+  font-family: "Inter", "Circular Std", sans-serif; /* Changed to Inter, fallback to Circular Std */
+  display: inline-flex; /* Reverted to inline-flex, to be centered by text-align of parent */
+  align-items: center;
+  padding: 0.6em 0.8em; /* Slightly less vertical, more compact */
+  background-color: rgba(255, 255, 255, 0.9); /* Whiter, slightly more opaque */
+  backdrop-filter: blur(10px); /* Frosted glass effect, adjust as needed */
+  -webkit-backdrop-filter: blur(10px); /* Safari support */
+  will-change: backdrop-filter; /* Added for potentially better performance/rendering of blur */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07); /* Softer, more diffused shadow */
+  /* z-index is on wrapper, but can be here too if needed for stacking context */
+  border: 1px solid rgba(0, 0, 0, 0.05); /* Very subtle border */
+  pointer-events: auto; /* Crucial: re-enable pointer events for the actual navbar */
+  border-radius: 30px; /* Pill shape for modern look */
+}
+
+.nav-item-base {
+  text-decoration: none;
+  color: #2563eb; /* Primary Blue for text - Tailwind's blue-600 */
+  font-weight: 500; /* Consider adjusting if Inter has different weight appearance */
+  font-size: 15px; /* Slightly smaller for refined look */
+  padding: 0.5em 1.2em; /* More horizontal padding for spacing */
+  margin: 0 0.2em; /* Spacing between links */
+  border-radius: 20px; /* Rounded inner items */
+  transition: background-color 0.2s ease, color 0.2s ease;
+  display: flex; /* For icon alignment if used */
+  align-items: center; /* For icon alignment if used */
+  /* No rounded corners for links either */
+}
+
+.nav-item-base:hover {
+  background-color: #eff6ff; /* Very light blue bg - Tailwind's blue-50 */
+  color: #1d4ed8; /* Darker blue on hover - Tailwind's blue-700 */
+}
+
+/* Optional: Styles if icons were to be used, ensure they match the new palette */
+/* Optional: Styles if icons were to be used */
+.nav-item-base.has-icon .nav-icon-wrapper {
+  margin-right: 0.5em;
+  display: flex;
+  align-items: center;
+}
+
+/* Responsive adjustments if needed */
+@media (max-width: 768px) {
+  .floating-nav-base {
+    padding: 0.6em 1em;
+    top: 0.5em;
+  }
+  .nav-item-base {
+    font-size: 15px;
+    padding: 0.4em 0.8em;
+    margin: 0 0.3em;
+  }
+}
+
+@media (max-width: 480px) {
+  .floating-nav-base {
+    width: calc(100% - 1em); /* More width on small screens */
+    padding: 0.5em;
+    gap: 0.2em;
+  }
+  .nav-item-base {
+    font-size: 13px;
+    padding: 0.4em 0.5em;
+    margin: 0 0.1em;
+  }
+  .nav-item-base.has-icon .nav-icon-wrapper {
+    margin-right: 0.3em;
+  }
+} 

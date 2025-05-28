@@ -4,43 +4,11 @@ body {
   /* The 1000vh height is problematic for a component, 
      assuming scrolling will be handled by the parent page or global styles */
   /* height: 1000vh; */ 
-  font-family: "Circular Std", sans-serif;
+  font-family: "Inter", "Circular Std", sans-serif;
   background: #ffffff; /* Assuming this might be a global background */
 }
 
-/* Old nav and footer styles removed */
-
-.floating-navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  padding: 1em 2em;
-  background-color: rgba(255, 255, 255, 0.85); /* Semi-transparent white */
-  backdrop-filter: blur(10px); /* Frosted glass effect */
-  -webkit-backdrop-filter: blur(10px); /* Safari support */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  display: flex;
-  justify-content: center; /* Center links */
-  align-items: center;
-  z-index: 1000; /* Ensure it's above other content */
-  gap: 2em; /* Space between links */
-}
-
-.floating-navbar a {
-  text-decoration: none;
-  color: #333; /* Darker text for better readability */
-  font-weight: 500;
-  font-size: 16px;
-  padding: 0.5em 1em;
-  border-radius: 8px;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.floating-navbar a:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-  color: #000;
-}
+/* Old .floating-navbar styles removed as they are now in floating-navbar.css */
 
 .container {
   position: fixed; /* Consider if this should be relative or part of the page flow */
@@ -104,35 +72,131 @@ body {
   transform: translateY(-50%);
   font-size: 12vw; /* Increased base font size */
   font-weight: bold;
-  color: rgba(0, 0, 0, 0.12); /* Adjusted for slightly darker text */
+  color: #000000; /* Changed to solid black for initial state */
   z-index: -1;
   pointer-events: none;
   line-height: 0.95; /* Adjusted line height */
   text-align: left;
+  font-family: "Inter", "Circular Std", sans-serif;
+  /* GSAP will animate this to the target opacity/color */
 }
 
 .image-specific-text {
   position: fixed;
   top: 50%;
-  right: 2em;
+  right: 3em;
   transform: translateY(-50%);
-  width: 280px;
-  padding: 1.5em;
-  background-color: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  width: 320px;
+  padding: 2em;
+  background-color: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 0;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
   color: #2c3e50;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-size: 15px;
+  font-family: "Inter", "Circular Std", sans-serif;
+  font-size: 16px;
   font-weight: 400;
   z-index: 50;
-  pointer-events: none;
-  transition: opacity 0.3s ease, transform 0.3s ease; /* Added transform to transition */
+  pointer-events: auto;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8em;
 }
 
-.image-specific-text p {
+.image-specific-text h2 {
+  font-size: 1.8em;
+  font-weight: 600;
+  color: #1a2533;
+  margin: 0 0 0.2em 0;
+  line-height: 1.2;
+}
+
+/* Style for the project title link */
+.project-title-link {
+  text-decoration: none;
+  color: #007bff; /* Standard blue link color */
+  transition: color 0.2s ease;
+}
+
+.project-title-link:hover {
+  color: #0056b3; /* Darker blue on hover */
+  text-decoration: underline;
+}
+
+.image-specific-text .description {
+  font-size: 0.95em;
+  line-height: 1.6;
   margin: 0;
-  line-height: 1.65;
+  color: #34495e;
+}
+
+.image-specific-text .stats {
+  font-size: 0.85em;
+  color: #7f8c8d;
+  margin: 0.5em 0;
+  font-style: italic;
+}
+
+.image-specific-text .view-project-link-text {
+  margin-top: auto; /* Push to bottom if other content is short */
+  text-align: center; /* Center the link text if desired */
+  font-size: 0.9em;
+  padding: 0.5em 0;
+}
+
+.image-specific-text .view-project-link-text a {
+  color: #007bff; /* Standard blue link color */
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.image-specific-text .view-project-link-text a:hover {
+  color: #0056b3; /* Darker blue on hover */
+}
+
+/* Styles for the new standalone button */
+.standalone-explore-button-container {
+  position: fixed;
+  bottom: 30px; 
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60; 
+  width: auto; /* Allow the button to determine the width of the container */
+  display: flex; /* Use flex to help if button has margins */
+  justify-content: center; /* Center button within container */
+}
+
+.standalone-explore-button {
+  display: inline-block;
+  padding: 10px 25px; /* Adjusted padding */
+  font-family: "Inter", "Circular Std", sans-serif;
+  font-size: 15px; /* Adjusted font size */
+  font-weight: 500; /* Medium weight */
+  color: white;
+  background-color: #2563eb; /* Primary Blue - Tailwind's blue-600 */
+  border: none;
+  border-radius: 25px; /* Pill shape */
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3), 0 1px 3px rgba(0,0,0,0.08); /* Blue glow + subtle shadow */
+}
+
+.standalone-explore-button:hover {
+  background-color: #1d4ed8; /* Darker Blue - Tailwind's blue-700 */
+  color: white;
+  transform: translateY(-2px) scale(1.02); /* Slight lift and scale */
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35), 0 2px 4px rgba(0,0,0,0.1); /* Enhanced shadow */
+}
+
+.standalone-explore-button:active {
+  transform: translateY(-1px) scale(0.98); /* Click effect */
+  background-color: #1e40af; /* Even darker blue - Tailwind's blue-800 */
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
 }
 
 /* Media Queries for Responsive Adjustments */
@@ -140,7 +204,7 @@ body {
   .background-text {
     font-size: 15vw; 
     left: 50%;
-    top: 35%; /* As per your last adjustment */
+    top: 35%;
     transform: translateX(-50%) translateY(-50%); 
     text-align: center;
     line-height: 1;
@@ -151,50 +215,69 @@ body {
     height: 40vw;
     max-width: 280px; 
     max-height: 186px; 
-    top: 54%; /* Moved below center */
+    top: 54%;
   }
 
   .image-specific-text {
     left: 50%;
     right: auto; 
     top: auto; 
-    bottom: 8%; 
+    bottom: 5%; 
     transform: translateX(-50%); 
-    width: 85vw; 
-    text-align: center;
-    font-size: 14px;
-    padding: 1em;
+    width: 88vw; 
+    max-width: 380px;
+    padding: 1.5em;
+    font-size: 15px;
+    gap: 0.6em;
   }
 
-  .floating-navbar {
-    padding: 0.8em 1em;
-    gap: 1em;
+  .image-specific-text h2 {
+    font-size: 1.6em;
   }
-  .floating-navbar a {
+  .standalone-explore-button-container {
+    bottom: 25px; /* Adjusted for better spacing */
+  }
+  .standalone-explore-button {
+    padding: 10px 22px;
     font-size: 14px;
-    padding: 0.4em 0.8em;
+  }
+  .image-specific-text .view-project-link-text {
+    text-align: center; /* Ensures it remains centered on mobile */
   }
 }
 
 @media (max-width: 480px) {
   .background-text {
     font-size: 18vw; 
-    top: 33%; /* Adjusted to keep relation with preview image */
+    top: 33%;
   }
 
   .image-specific-text {
-    bottom: 5%;
-    font-size: 13px;
+    width: 92vw;
+    padding: 1.2em;
+    font-size: 14px;
+    gap: 0.5em;
+    bottom: 3%;
+  }
+  .image-specific-text h2 {
+    font-size: 1.4em;
+  }
+  .standalone-explore-button-container {
+    bottom: 20px;
+    width: calc(100% - 40px); /* More inset */
+  }
+  .standalone-explore-button {
+    padding: 12px 20px; /* More vertical padding for tapability */
+    font-size: 14px;
+    width: 100%; 
+  }
+  .image-specific-text .view-project-link-text {
+     font-size: 0.85em;
   }
   
   .preview-img {
     width: 70vw;
     height: 45vw;
-    top: 55%; /* Moved below center for very small screens */
-  }
-
-  .floating-navbar a {
-    font-size: 13px;
-    padding: 0.3em 0.6em;
+    top: 55%;
   }
 } 
