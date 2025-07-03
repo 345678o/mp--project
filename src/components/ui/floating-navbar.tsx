@@ -1,14 +1,16 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import type { JSX } from 'react'; // Explicit import for JSX type
+import type { JSX } from 'react';
 import { motion, AnimatePresence, useMotionValueEvent, useScroll } from 'framer-motion';
-import './floating-navbar.css'; // We will create this CSS file
+import { isLoggedIn, logout } from '../../data/auth';
+import './floating-navbar.css';
 
 interface NavItem {
   name: string;
-  link: string;
-  icon?: JSX.Element; // Made icon optional
+  link?: string;
+  icon?: JSX.Element;
+  onClick?: () => void;
 }
 
 interface FloatingNavProps {
@@ -21,10 +23,15 @@ export const FloatingNav = ({
   className,
 }: FloatingNavProps) => {
   const { scrollYProgress } = useScroll();
-  const [visible, setVisible] = useState(true); // Default to true to be initially visible
+  const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+
+  useEffect(() => {
+    setIsUserLoggedIn(isLoggedIn());
+  }, []);
 
   useEffect(() => {
     const checkMobileView = () => {
@@ -40,29 +47,28 @@ export const FloatingNav = ({
     if (typeof currentScrollYVal === "number" && typeof lastScrollY.current === "number") {
       const direction = currentScrollYVal - lastScrollY.current;
 
-      if (currentScrollYVal < 0.05) { // Show if near the top
+      if (currentScrollYVal < 0.05) {
         setVisible(true);
       } else {
-        if (direction < 0) { // Scrolling up
+        if (direction < 0) {
           setVisible(true);
-        } else { // Scrolling down
+        } else {
           setVisible(false);
-          setIsMobileMenuOpen(false); // Close mobile menu on scroll down
+          setIsMobileMenuOpen(false);
         }
       }
       lastScrollY.current = currentScrollYVal;
     }
   });
 
-  // Effect to ensure navbar is visible when at the very top initially or after full scroll up
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY < 50) { // Adjust threshold as needed
+      if (window.scrollY < 50) {
         setVisible(true);
       }
     };
     window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Initial check
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -70,8 +76,14 @@ export const FloatingNav = ({
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const navItemsWithAuth = [
+    ...navItems,
+    isUserLoggedIn 
+      ? { name: 'Logout', onClick: logout }
+      : { name: 'Mentor Login', link: '/mentors/login' }
+  ];
+
   return (
-    // Added a fixed wrapper for centering
     <div className="floating-nav-centering-wrapper">
       <AnimatePresence mode="wait">
         <motion.div
@@ -98,16 +110,32 @@ export const FloatingNav = ({
           
           {(!isMobileView || isMobileMenuOpen) && (
             <div className={`nav-items-container ${isMobileView ? 'mobile-nav-items' : 'desktop-nav-items'}`}>
-              {navItems.map((navItem: NavItem, idx: number) => (
-                <a
-                  key={`link=${idx}`}
-                  href={navItem.link}
-                  className={`nav-item-base ${navItem.icon ? 'has-icon' : ''}`}
-                  onClick={() => isMobileView && setIsMobileMenuOpen(false)} // Close menu on item click
-                >
-                  {navItem.icon && <span className="nav-icon-wrapper">{navItem.icon}</span>}
-                  <span className="nav-text-wrapper">{navItem.name}</span>
-                </a>
+              {navItemsWithAuth.map((navItem: NavItem, idx: number) => (
+                navItem.onClick ? (
+                  <button
+                    key={`button-${idx}`}
+                    onClick={() => {
+                      navItem.onClick?.();
+                      if (isMobileView) setIsMobileMenuOpen(false);
+                    }}
+                    className={`nav-item-base ${navItem.icon ? 'has-icon' : ''}`}
+                  >
+                    {navItem.icon && <span className="nav-icon-wrapper">{navItem.icon}</span>}
+                    <span className="nav-text-wrapper">{navItem.name}</span>
+                  </button>
+                ) : (
+                  <a
+                    key={`link-${idx}`}
+                    href={navItem.link}
+                    className={`nav-item-base ${navItem.icon ? 'has-icon' : ''}`}
+                    onClick={() => {
+                      if (isMobileView) setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    {navItem.icon && <span className="nav-icon-wrapper">{navItem.icon}</span>}
+                    <span className="nav-text-wrapper">{navItem.name}</span>
+                  </a>
+                )
               ))}
             </div>
           )}
