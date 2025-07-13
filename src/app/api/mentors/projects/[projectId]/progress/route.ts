@@ -3,9 +3,9 @@ import { getCollection } from '@/lib/db';
 import { validateSession } from '@/data/auth';
 import { ObjectId } from 'mongodb';
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ projectId: string }> }) {
+// Next.js expects this signature for dynamic API routes
+export async function POST(request: NextRequest, context: { params: { projectId: string } }) {
   try {
-    const resolvedParams = await params;
     const sessionToken = request.cookies.get('session')?.value;
     if (!sessionToken) {
       return NextResponse.json({ success: false, message: 'Not authenticated' }, { status: 401 });
@@ -26,10 +26,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     let project = null;
     try {
       // Try as ObjectId first
-      project = await projectsCollection.findOne({ _id: new ObjectId(resolvedParams.projectId) });
-    } catch (error) {
+      project = await projectsCollection.findOne({ _id: new ObjectId(context.params.projectId) });
+    } catch {
       // If ObjectId conversion fails, try as projectCode
-      project = await projectsCollection.findOne({ projectCode: resolvedParams.projectId });
+      project = await projectsCollection.findOne({ projectCode: context.params.projectId });
     }
     
     if (!project) {
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     console.log('Mentor ObjectId:', new ObjectId(user._id));
     
     const mentorObjectId = new ObjectId(user._id);
-    const isMentorAssigned = project.mentors.some((mentorId: any) => 
+    const isMentorAssigned = project.mentors.some((mentorId: ObjectId) => 
       mentorId.toString() === mentorObjectId.toString()
     );
     
@@ -57,15 +57,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const progressReport = {
       date: new Date(),
-      text: text.trim(),
+      text: text.trim() as string,
       mentorId: user._id,
-      mentorName: mentorName
+      mentorName: mentorName as string
     };
 
     await projectsCollection.updateOne(
       { _id: project._id },
       { 
-        $push: { progressReport },
+        $push: { progressReport: progressReport },
         $set: { lastUpdated: new Date() }
       }
     );

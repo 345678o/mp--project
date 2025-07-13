@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -30,11 +30,7 @@ export default function AdminClasses() {
   const [success, setSuccess] = useState('');
   const [selectedYear, setSelectedYear] = useState('2024-2025');
 
-  useEffect(() => {
-    fetchClasses();
-  }, [selectedYear]);
-
-  const fetchClasses = async () => {
+  const fetchClasses = useCallback(async () => {
     try {
       const response = await fetch(`/api/admin/classes?academicYear=${selectedYear}`);
       if (response.ok) {
@@ -49,7 +45,11 @@ export default function AdminClasses() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedYear]);
+
+  useEffect(() => {
+    fetchClasses();
+  }, [fetchClasses]);
 
   const handleDeleteClass = async (classId: string) => {
     if (!confirm('Are you sure you want to delete this class? This action cannot be undone.')) {

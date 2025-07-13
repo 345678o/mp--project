@@ -3,10 +3,8 @@ import { connectToDatabase } from '@/lib/db';
 import { validateSession } from '@/data/auth';
 import { ObjectId } from 'mongodb';
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { projectId: string } }
-) {
+export async function PUT(request: NextRequest, context: { params: { projectId: string } }) {
+  const { params } = context;
   try {
     const sessionToken = request.cookies.get('session')?.value;
     

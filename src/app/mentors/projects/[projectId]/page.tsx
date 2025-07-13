@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { ArrowLeft, Calendar, Users, ExternalLink, Github, FileText, Clock, CheckCircle, PauseCircle, PlayCircle, Edit, Award, BookOpen, Code, Plus, Upload } from "lucide-react"
+import { ArrowLeft, Calendar, Users, ExternalLink, Github, FileText, Clock, CheckCircle, PauseCircle, PlayCircle, Edit, Award, BookOpen, Code, Plus } from "lucide-react"
 
 interface Project {
   _id: string
