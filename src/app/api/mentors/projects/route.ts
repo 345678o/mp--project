@@ -3,6 +3,7 @@ import { getCollection } from '@/lib/db';
 import { validateSession } from '@/data/auth';
 import { Project } from '@/data/project.model';
 import { ObjectId } from 'mongodb';
+import { generateProjectCode } from '@/lib/projectUtils';
 
 export async function POST(request: NextRequest) {
   try {
@@ -70,7 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate project code
-    const projectCode = `MP${Date.now().toString().slice(-6)}`;
+    const projectCode = await generateProjectCode(projectData.academicYear);
 
     // Create new project
     const newProject: Project = {
@@ -98,6 +99,7 @@ export async function POST(request: NextRequest) {
       status: 'in-progress',
       academicYear: projectData.academicYear,
       completed: false,
+      progressReport: [],
       createdAt: new Date(),
       lastUpdated: new Date()
     };
@@ -170,6 +172,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const classId = searchParams.get('classId');
     const academicYear = searchParams.get('academicYear');
+    const projectCode = searchParams.get('projectCode');
 
     const projectsCollection = await getCollection('projects');
     const mentorsCollection = await getCollection('mentors');
@@ -184,12 +187,15 @@ export async function GET(request: NextRequest) {
     }
 
     // Build filter
-    const filter: { mentors: ObjectId; classId?: ObjectId; academicYear?: string } = { mentors: mentor._id };
+    const filter: { mentors: ObjectId; classId?: ObjectId; academicYear?: string; projectCode?: string } = { mentors: mentor._id };
     if (classId) {
       filter.classId = new ObjectId(classId);
     }
     if (academicYear) {
       filter.academicYear = academicYear;
+    }
+    if (projectCode) {
+      filter.projectCode = projectCode;
     }
 
     const projects = await projectsCollection.find(filter).toArray();
@@ -221,6 +227,7 @@ export async function GET(request: NextRequest) {
         status: project.status,
         academicYear: project.academicYear,
         completed: project.completed,
+        progressReport: project.progressReport || [],
         createdAt: project.createdAt,
         lastUpdated: project.lastUpdated
       }))

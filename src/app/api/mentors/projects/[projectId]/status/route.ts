@@ -3,8 +3,9 @@ import { getCollection } from '@/lib/db';
 import { validateSession } from '@/data/auth';
 import { ObjectId } from 'mongodb';
 
-export async function PUT(request: NextRequest, { params }: { params: { projectId: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ projectId: string }> }) {
   try {
+    const resolvedParams = await params;
     const sessionToken = request.cookies.get('session')?.value;
     if (!sessionToken) {
       return NextResponse.json({ success: false, message: 'Not authenticated' }, { status: 401 });
@@ -18,15 +19,15 @@ export async function PUT(request: NextRequest, { params }: { params: { projectI
       return NextResponse.json({ success: false, message: 'Invalid status' }, { status: 400 });
     }
     const projectsCollection = await getCollection('projects');
-    const project = await projectsCollection.findOne({ _id: new ObjectId(params.projectId) });
+    const project = await projectsCollection.findOne({ _id: new ObjectId(resolvedParams.projectId) });
     if (!project) {
       return NextResponse.json({ success: false, message: 'Project not found' }, { status: 404 });
     }
     await projectsCollection.updateOne(
-      { _id: new ObjectId(params.projectId) },
+      { _id: new ObjectId(resolvedParams.projectId) },
       { $set: { status, lastUpdated: new Date(), completed: status === 'completed' } }
     );
-    const updated = await projectsCollection.findOne({ _id: new ObjectId(params.projectId) });
+    const updated = await projectsCollection.findOne({ _id: new ObjectId(resolvedParams.projectId) });
     return NextResponse.json(updated);
   } catch (error) {
     console.error('Error updating project status:', error);

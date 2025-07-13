@@ -149,10 +149,22 @@ export default function AdminSessions() {
               {daySessions.map(session => (
                 <div
                   key={session._id}
-                  className={`text-xs p-1 mb-1 rounded cursor-pointer ${getStatusColor(session.status)}`}
+                  className={`text-xs p-1 mb-1 rounded cursor-pointer ${getStatusColor(session.status)} relative group`}
                   title={`${session.className} ${session.section} - ${session.slot}`}
                 >
-                  {session.className} {session.section}
+                  <div className="flex justify-between items-center">
+                    <span>{session.className} {session.section}</span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteSession(session._id);
+                      }}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity text-red-600 hover:text-red-800 ml-1"
+                      title="Delete Session"
+                    >
+                      ×
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

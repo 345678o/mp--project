@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { JSX } from 'react';
 import { motion, AnimatePresence, useMotionValueEvent, useScroll } from 'framer-motion';
-import { isLoggedIn, logout } from '../../data/auth';
+import { isLoggedIn } from '../../data/auth';
 import './floating-navbar.css';
 
 interface NavItem {
@@ -76,11 +76,9 @@ export const FloatingNav = ({
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const navItemsWithAuth = [
+  const navItemsWithAuth: NavItem[] = [
     ...navItems,
-    isUserLoggedIn 
-      ? { name: 'Logout', onClick: logout }
-      : { name: 'Mentor Login', link: '/mentors/login' }
+    ...(isUserLoggedIn ? [] : [{ name: 'Mentor Login', link: '/mentors/login' }])
   ];
 
   return (

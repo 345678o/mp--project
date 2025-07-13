@@ -6,7 +6,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { Helix } from 'ldrs/react';
 import './CircularImageGallery.css';
-import { FloatingNav } from '@/components/ui/floating-navbar';
 import CustomCursor from '@/components/ui/CustomCursor';
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
@@ -142,7 +141,6 @@ const CircularImageGallery: React.FC = () => {
   const backgroundTextRef = useRef<HTMLDivElement>(null);
   const previewImgContainerRef = useRef<HTMLDivElement>(null);
   const descriptionTextRef = useRef<HTMLDivElement>(null);
-  const floatingNavRef = useRef<HTMLDivElement>(null);
   const exploreButtonContainerRef = useRef<HTMLDivElement>(null);
 
   const [showLoader, setShowLoader] = useState(true);
@@ -207,12 +205,11 @@ const CircularImageGallery: React.FC = () => {
     const bgText = backgroundTextRef.current;
     const previewImgContainer = previewImgContainerRef.current;
     const descriptionText = descriptionTextRef.current;
-    const navElement = floatingNavRef.current;
     const exploreButtonContainer = exploreButtonContainerRef.current;
 
-    if (!gallery || !previewImage || !bgText || !previewImgContainer || !descriptionText || !navElement || !exploreButtonContainer) {
+    if (!gallery || !previewImage || !bgText || !previewImgContainer || !descriptionText || !exploreButtonContainer) {
       console.error('CircularImageGallery: A critical ref is missing when expected to be present.', {
-        gallery, previewImage, bgText, previewImgContainer, descriptionText, navElement, exploreButtonContainer
+        gallery, previewImage, bgText, previewImgContainer, descriptionText, exploreButtonContainer
       });
       return;
     }
@@ -242,8 +239,6 @@ const CircularImageGallery: React.FC = () => {
     gsap.set(bgText, { color: '#000000', opacity: 1 });
     gsap.set(previewImgContainer, { opacity: 0 });
     gsap.set(descriptionText, { opacity: 0 });
-    gsap.set(navElement, { y: -100, opacity: 0 });
-    gsap.set(exploreButtonContainer, { y: 100, opacity: 0 });
 
     const tl = gsap.timeline({ 
       defaults: { ease: "power3.out" },
@@ -285,12 +280,6 @@ const CircularImageGallery: React.FC = () => {
 
     // 5. Navbar and Explore Button (start together, after description text finishes)
     const navAndButtonDuration = 0.4;
-    tl.to(navElement, { 
-        y: 0, 
-        opacity: 1, 
-        duration: navAndButtonDuration 
-    }, ">");
-
     tl.to(exploreButtonContainer, { 
         y: 0,
         opacity: 1,
@@ -368,18 +357,10 @@ const CircularImageGallery: React.FC = () => {
       if (bgText) gsap.killTweensOf(bgText);
       if (previewImgContainer) gsap.killTweensOf(previewImgContainer);
       if (descriptionText) gsap.killTweensOf(descriptionText);
-      if (navElement) gsap.killTweensOf(navElement);
       if (exploreButtonContainer) gsap.killTweensOf(exploreButtonContainer);
       tl.kill();
     };
   }, [isClientMounted, showLoader, galleryItemsData, setCurrentImageDetails, scrollToItem]);
-
-  const navItems = [
-    { name: "Home", link: "/" },
-    { name: "Problem Statements", link: "/problems" },
-    { name: "Projects", link: "/projects" },
-    { name: "Admin Login", link: "/admin/login" },
-  ];
 
   if (!isClientMounted || showLoader) {
     // Using the Helix React component for the loader
@@ -408,10 +389,7 @@ const CircularImageGallery: React.FC = () => {
   return (
     <>
       <CustomCursor />
-      <div ref={floatingNavRef} style={{ position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 1000 }}>
-        <FloatingNav navItems={navItems} />
-      </div>
-
+      
       <div className="background-text" ref={backgroundTextRef}>
         Micro
         <br />

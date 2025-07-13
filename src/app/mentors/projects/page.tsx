@@ -229,11 +229,19 @@ export default function MentorProjects() {
             </div>
           ) : (
             <div className="space-y-6">
-              {projects.map((project) => (
+                            {projects.map((project) => (
                 <div key={project._id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">{project.title}</h3>
+                      <div className="flex items-center gap-3 mb-2">
+                                                <h3 className="text-xl font-semibold text-gray-900">{project.title}</h3>
+                        <button
+                          onClick={() => router.push(`/mentors/projects/${project.projectCode}`)}
+                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                        >
+                          View Details
+                        </button>
+                      </div>
                       <p className="text-gray-600 mb-2">{project.description}</p>
                       <div className="flex items-center space-x-4 text-sm text-gray-500">
                         <span>Code: {project.projectCode}</span>
