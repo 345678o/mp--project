@@ -6,11 +6,12 @@ export function middleware(request: NextRequest) {
   const adminEmail = request.cookies.get('adminEmail')?.value;
   const mentorUsername = request.cookies.get('mentorUsername')?.value;
 
-  // Check if trying to access admin routes
-  if (request.nextUrl.pathname.startsWith('/admin')) {
-    // If no admin email is stored, redirect to login
+  // Check if trying to access admin routes (except login)
+  if (request.nextUrl.pathname.startsWith('/admin') && 
+      !request.nextUrl.pathname.includes('login')) {
+    // If no admin email is stored, redirect to admin login
     if (!adminEmail) {
-      return NextResponse.redirect(new URL('/mentors/login', request.url));
+      return NextResponse.redirect(new URL('/admin/login', request.url));
     }
   }
 

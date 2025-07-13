@@ -1,116 +1,78 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { MongoClient, ObjectId } from 'mongodb';
-import { Session, SessionStatus } from '@/data/session.model';
+import { getCollection } from '@/lib/db';
+import { validateSession } from '@/data/auth';
 
-const uri = process.env.MONGODB_URI!;
-const adminEmails = (process.env.ADMIN_EMAILS || '').split(',');
-
-export async function GET(req: NextRequest) {
-  const username = req.headers.get('x-mentor-username');
-  if (!username) {
-    return NextResponse.json({ error: 'Mentor username required' }, { status: 400 });
-  }
-
-  const client = new MongoClient(uri, {
-    ssl: true,
-    tls: true,
-    tlsAllowInvalidCertificates: true, // Only for development
-    serverApi: { version: '1', strict: true, deprecationErrors: true }
-  });
-
+export async function GET(request: NextRequest) {
   try {
-    await client.connect();
-    const db = client.db();
+    const sessionToken = request.cookies.get('session')?.value;
+    
+    if (!sessionToken) {
+      return NextResponse.json(
+        { success: false, message: 'Not authenticated' },
+        { status: 401 }
+      );
+    }
+
+    const user = validateSession(sessionToken);
+    if (!user || user.role !== 'mentor') {
+      return NextResponse.json(
+        { success: false, message: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const sessionsCollection = await getCollection('sessions');
+    const mentorsCollection = await getCollection('mentors');
+    
     // Find sessions where the mentor is involved
-    const sessions = await db.collection('sessions').find({
+    const sessions = await sessionsCollection.find({
       $or: [
-        { facultyMentor: username },
-        { studentMentor1: username },
-        { studentMentor2: username },
-        { 'substitutedMentor1.originalMentor': username },
-        { 'substitutedMentor1.substituteMentor': username },
-        { 'substitutedMentor2.originalMentor': username },
-        { 'substitutedMentor2.substituteMentor': username },
-        { subMentor: username }
-      ],
+        { studentMentor1: user.username },
+        { studentMentor2: user.username },
+        { facultyMentor: user.username },
+        { subMentor: user.username }
+      ]
     }).toArray();
 
-    // Ensure all sessions have a status
-    const processedSessions = sessions.map(session => ({
-      ...session,
-      status: session.status || 'pending' as SessionStatus,
-      lastUpdated: session.lastUpdated || new Date()
-    }));
-
-    return NextResponse.json({ sessions: processedSessions });
+    // Get mentor statistics
+    const mentor = await mentorsCollection.findOne({ username: user.username });
+    
+    return NextResponse.json({
+      success: true,
+      sessions: sessions.map(session => ({
+        _id: session._id,
+        classId: session.classId,
+        day: session.day,
+        date: session.date,
+        timeSlot: session.timeSlot,
+        slot: session.slot,
+        className: session.className,
+        section: session.section,
+        batch: session.batch,
+        studentMentor1: session.studentMentor1,
+        studentMentor2: session.studentMentor2,
+        facultyMentor: session.facultyMentor,
+        subMentor: session.subMentor,
+        sessionProgress: session.sessionProgress,
+        attendanceImage: session.attendanceImage,
+        projectStatus: session.projectStatus,
+        projects: session.projects,
+        status: session.status,
+        academicYear: session.academicYear,
+        completedBy: session.completedBy,
+        lastUpdated: session.lastUpdated,
+        createdAt: session.createdAt
+      })),
+      mentorStats: mentor ? {
+        sessions_taken_overall: mentor.sessions_taken_overall,
+        current_sem_sessions_taken: mentor.current_sem_sessions_taken
+      } : null
+    });
   } catch (error) {
-    console.error('Error fetching sessions:', error);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
-  } finally {
-    await client.close();
-  }
-}
-
-export async function POST(req: NextRequest) {
-  const client = new MongoClient(uri, {
-    ssl: true,
-    tls: true,
-    tlsAllowInvalidCertificates: true, // Only for development
-    serverApi: { version: '1', strict: true, deprecationErrors: true }
-  });
-
-  try {
-    await client.connect();
-    const db = client.db();
-    if (req.headers.get('content-type')?.includes('multipart/form-data')) {
-      // Mentor updating session progress and attendance image
-      const formData = await req.formData();
-      const sessionId = formData.get('sessionId') as string;
-      const sessionProgress = formData.get('sessionProgress') as string;
-      let attendanceImage = '';
-      const file = formData.get('attendanceImage') as File | null;
-      if (file && file.name) attendanceImage = `/uploads/${file.name}`;
-      
-      await db.collection('sessions').updateOne(
-        { _id: new ObjectId(sessionId) },
-        { 
-          $set: { 
-            sessionProgress, 
-            attendanceImage,
-            status: 'in-progress' as SessionStatus,
-            lastUpdated: new Date()
-          } 
-        }
-      );
-      return NextResponse.json({ message: 'Session updated' });
-    } else {
-      // Auto-populate next week's session or admin creates session
-      const adminEmail = req.headers.get('x-admin-email');
-      if (!adminEmail || !adminEmails.includes(adminEmail)) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
-      const data = await req.json();
-      if (data._id) delete data._id;
-      
-      // Convert date string to Date object if needed
-      if (typeof data.date === 'string') {
-        data.date = new Date(data.date);
-      }
-
-      // Ensure required fields
-      const sessionData: Partial<Session> = {
-        ...data,
-        status: data.status || 'pending',
-        lastUpdated: new Date()
-      };
-
-      await db.collection('sessions').insertOne(sessionData);
-      return NextResponse.json({ message: 'Session created' });
-    }
-  } catch (error) {
-    console.error('Error handling session:', error);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
-  } finally {
-    await client.close();
+    console.error('Error fetching mentor sessions:', error);
+    return NextResponse.json(
+      { success: false, message: 'Internal server error' },
+      { status: 500 }
+    );
   }
 } 

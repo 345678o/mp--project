@@ -1,70 +1,83 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { MongoClient, ObjectId } from 'mongodb';
+import { getCollection } from '@/lib/db';
+import { validateSession } from '@/data/auth';
+import { ObjectId } from 'mongodb';
 
-const uri = process.env.MONGODB_URI;
-
-export async function PUT(req: NextRequest) {
-  if (!uri) {
-    console.error('MONGODB_URI environment variable is not set');
-    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
-  }
-
+export async function PUT(request: NextRequest) {
   try {
-    const { sessionId, updates } = await req.json();
+    const sessionToken = request.cookies.get('session')?.value;
     
-    if (!sessionId || !updates) {
-      return NextResponse.json({ error: 'Session ID and updates are required' }, { status: 400 });
+    if (!sessionToken) {
+      return NextResponse.json(
+        { success: false, message: 'Not authenticated' },
+        { status: 401 }
+      );
     }
 
-    const client = new MongoClient(uri, {
-      ssl: true,
-      tls: true,
-      tlsAllowInvalidCertificates: true, // Only for development
-      serverApi: { version: '1', strict: true, deprecationErrors: true }
+    const user = validateSession(sessionToken);
+    if (!user || user.role !== 'mentor') {
+      return NextResponse.json(
+        { success: false, message: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const { sessionId, updates } = await request.json();
+    
+    if (!sessionId) {
+      return NextResponse.json(
+        { success: false, message: 'Session ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const sessionsCollection = await getCollection('sessions');
+    
+    // Verify the mentor has access to this session
+    const session = await sessionsCollection.findOne({
+      _id: new ObjectId(sessionId),
+      $or: [
+        { studentMentor1: user.username },
+        { studentMentor2: user.username },
+        { facultyMentor: user.username },
+        { subMentor: user.username }
+      ]
     });
 
-    try {
-      await client.connect();
-      const db = client.db();
-      
-      // Verify the session exists
-      const session = await db.collection('sessions').findOne({
-        _id: new ObjectId(sessionId)
-      });
-
-      if (!session) {
-        return NextResponse.json({ error: 'Session not found' }, { status: 404 });
-      }
-
-      // Update the session
-      const result = await db.collection('sessions').updateOne(
-        { _id: new ObjectId(sessionId) },
-        { 
-          $set: {
-            ...updates,
-            lastUpdated: new Date()
-          }
-        }
+    if (!session) {
+      return NextResponse.json(
+        { success: false, message: 'Session not found or access denied' },
+        { status: 404 }
       );
-
-      if (result.modifiedCount === 0) {
-        return NextResponse.json({ error: 'No changes made to session' }, { status: 400 });
-      }
-
-      // Get the updated session
-      const updatedSession = await db.collection('sessions').findOne({
-        _id: new ObjectId(sessionId)
-      });
-
-      return NextResponse.json(updatedSession);
-    } finally {
-      await client.close();
     }
-  } catch (error: unknown) {
+
+    // Update the session
+    const result = await sessionsCollection.updateOne(
+      { _id: new ObjectId(sessionId) },
+      { 
+        $set: {
+          ...updates,
+          lastUpdated: new Date()
+        }
+      }
+    );
+
+    if (result.matchedCount === 0) {
+      return NextResponse.json(
+        { success: false, message: 'Session not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Session updated successfully'
+    });
+  } catch (error) {
     console.error('Error updating session:', error);
-    return NextResponse.json({ 
-      error: 'Server error',
-      details: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : String(error) : undefined
-    }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: 'Internal server error' },
+      { status: 500 }
+    );
   }
 } 

@@ -1,182 +1,194 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { MongoClient, ObjectId } from 'mongodb';
+import { getCollection } from '@/lib/db';
 import { ProblemStatement } from '@/data/problem.model';
+import { ObjectId } from 'mongodb';
 
-const uri = process.env.MONGODB_URI!;
-const adminEmails = (process.env.ADMIN_EMAILS || '').split(',');
-
-// Get all problem statements
-export async function GET(_req: NextRequest) {
-  // Admin check removed for public access
-  // const adminEmail = req.headers.get('x-admin-email');
-  // if (!adminEmail || !adminEmails.includes(adminEmail)) {
-  //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  // }
-
-  const client = new MongoClient(uri, {
-    ssl: true,
-    tls: true,
-    tlsAllowInvalidCertificates: true,
-  });
-
+export async function POST(request: NextRequest) {
   try {
-    await client.connect();
-    const db = client.db();
-    const problems = await db.collection('problems').find({}).toArray();
-    return NextResponse.json({ problems });
-  } catch (error) {
-    console.error('Error fetching problems:', error);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
-  } finally {
-    await client.close();
-  }
-}
-
-// Create a new problem statement
-export async function POST(req: NextRequest) {
-  const adminEmail = req.headers.get('x-admin-email');
-  if (!adminEmail || !adminEmails.includes(adminEmail)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const client = new MongoClient(uri, {
-    ssl: true,
-    tls: true,
-    tlsAllowInvalidCertificates: true,
-  });
-
-  try {
-    await client.connect();
-    const db = client.db();
-    
-    const problemData = await req.json();
+    const problemData = await request.json();
     
     // Validate required fields
-    const requiredFields = ['title', 'description', 'domain', 'techStacks', 'source'];
-    const missingFields = requiredFields.filter(field => !problemData[field]);
-    
-    if (missingFields.length > 0) {
-      return NextResponse.json({ 
-        error: `Missing required fields: ${missingFields.join(', ')}` 
-      }, { status: 400 });
+    const requiredFields = ['title', 'description', 'domain', 'source', 'difficulty', 'estimatedDuration', 'maxTeamSize'];
+    for (const field of requiredFields) {
+      if (!problemData[field]) {
+        return NextResponse.json(
+          { success: false, message: `${field} is required` },
+          { status: 400 }
+        );
+      }
     }
 
-    // Create the problem statement
-    const newProblem: Partial<ProblemStatement> = {
-      ...problemData,
+    const problemsCollection = await getCollection('problemStatements');
+    
+    // Check if title already exists
+    const existingProblem = await problemsCollection.findOne({ 
+      title: problemData.title
+    });
+    if (existingProblem) {
+      return NextResponse.json(
+        { success: false, message: 'Problem statement with this title already exists' },
+        { status: 409 }
+      );
+    }
+
+    // Create new problem statement
+    const newProblem: ProblemStatement = {
+      title: problemData.title,
+      description: problemData.description,
+      domain: problemData.domain,
+      techStacks: problemData.techStacks || [],
+      source: problemData.source,
+      application: problemData.application || '',
+      resources: problemData.resources || '',
+      difficulty: problemData.difficulty,
+      estimatedDuration: problemData.estimatedDuration,
+      maxTeamSize: problemData.maxTeamSize,
       submissions: [],
       previousImplementations: [],
       previousAttempts: [],
-      isActive: true,
       createdAt: new Date(),
-      lastUpdated: new Date()
+      lastUpdated: new Date(),
+      isActive: true
     };
 
-    const result = await db.collection('problems').insertOne(newProblem);
+    const result = await problemsCollection.insertOne(newProblem);
 
-    return NextResponse.json({ 
+    return NextResponse.json({
+      success: true,
       message: 'Problem statement created successfully',
-      problemId: result.insertedId 
-    }, { status: 201 });
-
+      problemId: result.insertedId
+    });
   } catch (error) {
     console.error('Error creating problem statement:', error);
-    return NextResponse.json({ 
-      error: 'Failed to create problem statement',
-      details: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : String(error) : undefined
-    }, { status: 500 });
-  } finally {
-    await client.close();
+    return NextResponse.json(
+      { success: false, message: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 
-// Update a problem statement
-export async function PUT(req: NextRequest) {
-  const adminEmail = req.headers.get('x-admin-email');
-  if (!adminEmail || !adminEmails.includes(adminEmail)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const client = new MongoClient(uri, {
-    ssl: true,
-    tls: true,
-    tlsAllowInvalidCertificates: true,
-  });
-
+export async function GET(request: NextRequest) {
   try {
-    await client.connect();
-    const db = client.db();
+    const { searchParams } = new URL(request.url);
+    const isActive = searchParams.get('isActive');
     
-    const { problemId, updates } = await req.json();
+    const problemsCollection = await getCollection('problemStatements');
+    
+    const filter: { isActive?: boolean } = {};
+    if (isActive !== null) {
+      filter.isActive = isActive === 'true';
+    }
+    
+    const problems = await problemsCollection.find(filter).toArray();
+    
+    return NextResponse.json({
+      success: true,
+      problems: problems.map(problem => ({
+        _id: problem._id,
+        title: problem.title,
+        description: problem.description,
+        domain: problem.domain,
+        techStacks: problem.techStacks,
+        source: problem.source,
+        application: problem.application,
+        resources: problem.resources,
+        difficulty: problem.difficulty,
+        estimatedDuration: problem.estimatedDuration,
+        maxTeamSize: problem.maxTeamSize,
+        isActive: problem.isActive,
+        createdAt: problem.createdAt,
+        lastUpdated: problem.lastUpdated,
+        previousImplementations: problem.previousImplementations,
+        submissions: problem.submissions,
+        previousAttempts: problem.previousAttempts
+      }))
+    });
+  } catch (error) {
+    console.error('Error fetching problem statements:', error);
+    return NextResponse.json(
+      { success: false, message: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const problemId = searchParams.get('id');
     
     if (!problemId) {
-      return NextResponse.json({ error: 'Problem ID is required' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: 'Problem ID is required' },
+        { status: 400 }
+      );
     }
 
-    const result = await db.collection('problems').updateOne(
-      { _id: new ObjectId(problemId) },
-      { 
-        $set: {
-          ...updates,
-          lastUpdated: new Date()
-        }
-      }
-    );
+    const updateData = await request.json();
+    const problemsCollection = await getCollection('problemStatements');
+    
+         const result = await problemsCollection.updateOne(
+       { _id: new ObjectId(problemId) },
+       { 
+         $set: {
+           ...updateData,
+           lastUpdated: new Date()
+         }
+       }
+     );
 
     if (result.matchedCount === 0) {
-      return NextResponse.json({ error: 'Problem statement not found' }, { status: 404 });
+      return NextResponse.json(
+        { success: false, message: 'Problem statement not found' },
+        { status: 404 }
+      );
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
+      success: true,
       message: 'Problem statement updated successfully'
     });
-
   } catch (error) {
     console.error('Error updating problem statement:', error);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
-  } finally {
-    await client.close();
+    return NextResponse.json(
+      { success: false, message: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 
-// Delete a problem statement
-export async function DELETE(req: NextRequest) {
-  const adminEmail = req.headers.get('x-admin-email');
-  if (!adminEmail || !adminEmails.includes(adminEmail)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const client = new MongoClient(uri, {
-    ssl: true,
-    tls: true,
-    tlsAllowInvalidCertificates: true,
-  });
-
+export async function DELETE(request: NextRequest) {
   try {
-    await client.connect();
-    const db = client.db();
-    
-    const { searchParams } = new URL(req.url);
-    const problemId = searchParams.get('problemId');
+    const { searchParams } = new URL(request.url);
+    const problemId = searchParams.get('id');
     
     if (!problemId) {
-      return NextResponse.json({ error: 'Problem ID is required' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: 'Problem ID is required' },
+        { status: 400 }
+      );
     }
 
-    const result = await db.collection('problems').deleteOne({ _id: new ObjectId(problemId) });
+    const problemsCollection = await getCollection('problemStatements');
+    
+         const result = await problemsCollection.deleteOne({ _id: new ObjectId(problemId) });
 
     if (result.deletedCount === 0) {
-      return NextResponse.json({ error: 'Problem statement not found' }, { status: 404 });
+      return NextResponse.json(
+        { success: false, message: 'Problem statement not found' },
+        { status: 404 }
+      );
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
+      success: true,
       message: 'Problem statement deleted successfully'
     });
-
   } catch (error) {
     console.error('Error deleting problem statement:', error);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
-  } finally {
-    await client.close();
+    return NextResponse.json(
+      { success: false, message: 'Internal server error' },
+      { status: 500 }
+    );
   }
 } 

@@ -1,62 +1,71 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { MongoClient } from 'mongodb';
-import bcrypt from 'bcryptjs';
+import { getCollection } from '@/lib/db';
+import { comparePassword, createSession } from '@/data/auth';
+import { Mentor } from '@/data/mentor.model';
 
-const uri = process.env.MONGODB_URI;
-const adminEmails = (process.env.ADMIN_EMAILS || '').split(',');
-
-export async function POST(req: NextRequest) {
-  if (!uri) {
-    console.error('MONGODB_URI environment variable is not set');
-    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
-  }
-
+export async function POST(request: NextRequest) {
   try {
-    const { username, password } = await req.json();
-    
-    if (!username || !password) {
-      return NextResponse.json({ error: 'Username and password are required' }, { status: 400 });
+    const { username, password } = await request.json();
+
+    const mentorsCollection = await getCollection('mentors');
+    const mentor = await mentorsCollection.findOne({ username }) as Mentor | null;
+
+    if (!mentor) {
+      return NextResponse.json(
+        { success: false, message: 'Mentor not found' },
+        { status: 404 }
+      );
     }
 
-    // Create MongoDB client with specific TLS options
-    const client = new MongoClient(uri, {
-      ssl: true,
-      tls: true,
-      tlsAllowInvalidCertificates: true, // Only for development
-      serverApi: { version: '1', strict: true, deprecationErrors: true }
+    // Simple password comparison
+    if (!comparePassword(password, mentor.password)) {
+      return NextResponse.json(
+        { success: false, message: 'Invalid password' },
+        { status: 401 }
+      );
+    }
+
+    if (!mentor.isActive) {
+      return NextResponse.json(
+        { success: false, message: 'Account is deactivated' },
+        { status: 403 }
+      );
+    }
+
+    const sessionToken = createSession({
+      _id: mentor._id?.toString() || '',
+      username: mentor.username,
+      email: mentor.email,
+      role: 'mentor'
     });
-    
-    try {
-      await client.connect();
-      const db = client.db();
-      const mentor = await db.collection('mentors').findOne({ username });
-      
-      if (!mentor) {
-        return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
-      }
-      
-      const valid = await bcrypt.compare(password, mentor.password);
-      if (!valid) {
-        return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
-      }
 
-      // Check if mentor's email is in admin list
-      const isAdmin = adminEmails.includes(mentor.email);
-      console.log('Login - Email:', mentor.email, 'Is admin:', isAdmin);
-
-      return NextResponse.json({ 
-        message: 'Login successful',
+    const response = NextResponse.json({
+      success: true,
+      message: 'Mentor login successful',
+      user: {
+        _id: mentor._id,
+        username: mentor.username,
         email: mentor.email,
-        isAdmin
-      });
-    } finally {
-      await client.close();
-    }
-  } catch (error: unknown) {
-    console.error('Login error:', error);
-    return NextResponse.json({ 
-      error: 'Server error', 
-      details: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : String(error) : undefined 
-    }, { status: 500 });
+        role: 'mentor',
+        Branch: mentor.Branch,
+        Section: mentor.Section
+      }
+    });
+
+    // Set session cookie
+    response.cookies.set('session', sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 // 24 hours
+    });
+
+    return response;
+  } catch (error) {
+    console.error('Mentor login error:', error);
+    return NextResponse.json(
+      { success: false, message: 'Internal server error' },
+      { status: 500 }
+    );
   }
 } 

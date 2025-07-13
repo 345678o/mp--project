@@ -17,34 +17,34 @@ const NUM_UNIQUE_IMAGES = 15;
 // Updated sample data for each unique image
 const sampleProjectData = [
   {
-    title: "Andromeda's Wonders",
-    description: "Exploring the Andromeda Galaxy - a vast expanse of stars and cosmic wonders beyond imagination.",
-    link: "/projects/andromeda",
-    stats: "Viewers: 1.2M | Likes: 300K"
+    title: "Micro Projects Management",
+    description: "A comprehensive platform for managing student projects, mentor sessions, and academic collaboration.",
+    link: "/projects",
+    stats: "Projects: 100+ | Mentors: 50+"
   },
   {
-    title: "The Art of Bonsai",
-    description: "Cultivating miniature trees, a tradition from ancient Japan requiring patience and artistry.",
-    link: "/projects/bonsai",
-    stats: "Followers: 50K | Rating: 4.8/5"
+    title: "Problem Statement Library",
+    description: "Browse through a curated collection of project problem statements for students and mentors.",
+    link: "/problems",
+    stats: "Problems: 200+ | Domains: 15+"
   },
   {
-    title: "Future Architecture",
-    description: "A look into the sustainable and breathtaking architectural designs of tomorrow.",
-    link: "/projects/architecture",
-    stats: "Designs: 100+ | Innovators: 25"
+    title: "Student Dashboard",
+    description: "Access your assigned projects, track progress, and collaborate with team members.",
+    link: "/mentors/dashboard",
+    stats: "Sessions: 50+ | Classes: 10+"
   },
   {
-    title: "Deep Sea Mysteries",
-    description: "Unveiling the strange and beautiful creatures lurking in the ocean's darkest abyss.",
-    link: "/projects/deep-sea",
-    stats: "Species: 200+ | Depth: 8km"
+    title: "Admin Portal",
+    description: "Manage mentors, classes, problem statements, and oversee the entire micro projects system.",
+    link: "/admin/login",
+    stats: "Mentors: 50+ | Classes: 20+"
   },
   {
-    title: "Global Street Food",
-    description: "Tasting the unique and vibrant flavors of street food from bustling cities around the world.",
-    link: "/projects/street-food",
-    stats: "Countries: 30+ | Recipes: 500+"
+    title: "Session Management",
+    description: "Track session progress, manage attendance, and monitor project completion status.",
+    link: "/mentors/complete-session",
+    stats: "Sessions: 100+ | Completion: 85%"
   },
   {
     title: "Vintage Car Elegance",
@@ -375,11 +375,10 @@ const CircularImageGallery: React.FC = () => {
   }, [isClientMounted, showLoader, galleryItemsData, setCurrentImageDetails, scrollToItem]);
 
   const navItems = [
+    { name: "Home", link: "/" },
+    { name: "Problem Statements", link: "/problems" },
     { name: "Projects", link: "/projects" },
-    { name: "Mentors", link: "/mentors" },
-    { name: "Resources", link: "/resources" },
-    { name: "Contact Us", link: "/contact" },
-    { name: "Make Your Own Projects", link: "/make-your-own" },
+    { name: "Admin Login", link: "/admin/login" },
   ];
 
   if (!isClientMounted || showLoader) {
@@ -438,7 +437,7 @@ const CircularImageGallery: React.FC = () => {
             <p className="description">{currentImageDetails.description}</p>
             <p className="stats">{currentImageDetails.stats}</p>
             <p className="view-project-link-text">
-              <a href="/projects" target="_blank" rel="noopener noreferrer">Click here to view the project</a>
+              <a href={currentImageDetails.link} target="_blank" rel="noopener noreferrer">Click here to view the project</a>
             </p>
           </>
         )}
