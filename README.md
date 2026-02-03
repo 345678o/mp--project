@@ -1,45 +1,49 @@
-# Micro Projects Management System
+# Project Showcase Platform
 
-A comprehensive web application for managing micro projects in educational institutions. This system allows administrators to manage mentors, classes, problem statements, and sessions, while providing mentors with tools to manage their sessions and projects.
+A beautiful, interactive frontend-only platform for showcasing projects. Features a stunning circular image gallery and an elegant project upload form - perfect for portfolios and community showcases.
 
-## Features
+## ✨ Features
 
-### Admin Features
-- **Dashboard**: Overview with statistics and quick access to all management functions
-- **Mentor Management**: Create and manage mentors with detailed profiles including skills, hobbies, and social links
-- **Class Management**: Create classes with batches and assign mentors
-- **Problem Statement Management**: Create and manage problem statements with difficulty levels, tech stacks, and team size requirements
-- **Session Management**: Create and schedule micro project sessions with auto-population functionality
-- **Project Management**: Track and manage all projects across classes
+### 🏠 **Interactive Home Page**
+- **Circular Image Gallery**: Stunning 3D rotating gallery with GSAP animations
+- **Smooth Scrolling**: Interactive scroll-based rotation
+- **Custom Cursor**: Beautiful custom cursor with trailing effect
+- **Responsive Design**: Perfectly adapted for all screen sizes
+- **Floating Navigation**: Clean, modern navigation that adapts to scroll
 
-### Mentor Features
-- **Session Management**: View and update session progress, upload attendance images
-- **Project Management**: Create and manage projects, track team members
-- **Substitute Management**: Assign substitute mentors when unavailable
+### 📁 **Projects Showcase**
+- **Clean Layout**: Minimalist design focused on content
+- **Call-to-Action**: Prominent upload button to encourage contributions
+- **Responsive Grid**: Adaptive layout for different screen sizes
 
-### Public Features
-- **Problem Statement Browser**: Public access to view all available problem statements
-- **Filtering**: Filter by academic year, difficulty level, and domain
+### 📤 **Project Upload Form**
+- **Beautiful Form Design**: Multi-step form with elegant styling
+- **File Upload Interface**: Drag & drop image uploads with previews
+- **Technology Tagging**: Dynamic tag system for technologies used
+- **Form Validation**: Client-side validation for better UX
+- **Demo Mode**: Fully functional form (frontend-only, no backend required)
 
-## Technology Stack
+## 🛠️ Technology Stack
 
-- **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS
-- **Backend**: Next.js API Routes
-- **Database**: MongoDB
-- **Authentication**: Simple session-based authentication (no bcrypt for demo)
+- **Framework**: Next.js 15 with App Router
+- **Frontend**: React 19, TypeScript
+- **Styling**: Tailwind CSS
+- **Animations**: GSAP, Framer Motion
+- **Icons**: Lucide React
+- **Loading Animations**: LDRS (Loading animations)
 
-## Setup Instructions
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
-- MongoDB instance (local or cloud)
+- Node.js 18 or higher
+- npm or yarn
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd MPSiteIdea
+   cd MicroProjectsSiteIdea
    ```
 
 2. **Install dependencies**
@@ -47,121 +51,146 @@ A comprehensive web application for managing micro projects in educational insti
    npm install
    ```
 
-3. **Environment Setup**
-   Create a `.env.local` file in the root directory:
-   ```env
-   MONGODB_URI=mongodb://localhost:27017
-   DB_NAME=microprojects
+3. **Start development server**
+   ```bash
+   npm run dev
    ```
 
-4. **Run the development server**
-```bash
-npm run dev
-   ```
+4. **Open in browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
-5. **Access the application**
-   Open [http://localhost:3000](http://localhost:3000) in your browser
-
-## Demo Credentials
-
-### Admin Login
-- **Username**: admin
-- **Password**: admin123
-- **URL**: `/admin/login`
-
-### Mentor Login
-- Create mentors through the admin panel first
-- Use the mentor's username and password to login
-- **URL**: `/mentors/login`
-
-## Database Schema
-
-### Collections
-
-1. **mentors**: Mentor profiles with skills, hobbies, and academic information
-2. **classes**: Class information with batches and assigned mentors
-3. **sessions**: Micro project sessions with status tracking
-4. **problemStatements**: Available problem statements for projects
-5. **projects**: Student projects with team members and progress
-
-### Key Features
-
-- **Academic Year Management**: All data is organized by academic years
-- **Batch System**: Classes can have multiple batches (e.g., 2028, 2029)
-- **Session Auto-population**: Automatically create recurring sessions
-- **Substitute Mentor System**: Handle mentor unavailability
-- **Project Tracking**: Complete project lifecycle management
-
-## API Endpoints
-
-### Admin APIs
-- `POST /api/admin/login` - Admin authentication
-- `GET /api/admin/stats` - Dashboard statistics
-- `POST /api/admin/mentors` - Create mentors
-- `GET /api/admin/mentors` - List mentors
-- `POST /api/admin/classes` - Create classes
-- `GET /api/admin/classes` - List classes
-- `POST /api/admin/problems` - Create problem statements
-- `GET /api/admin/problems` - List problem statements
-- `POST /api/admin/sessions` - Create sessions
-- `GET /api/admin/sessions` - List sessions
-
-### Mentor APIs
-- `POST /api/mentors/login` - Mentor authentication
-- `GET /api/mentors/sessions` - Get mentor's sessions
-- `PUT /api/mentors/sessions` - Update session progress
-
-### Public APIs
-- `GET /api/admin/problems` - Public access to problem statements
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 src/
 ├── app/
-│   ├── admin/           # Admin pages
-│   ├── mentors/         # Mentor pages
-│   ├── problems/        # Public problem statements
-│   └── api/            # API routes
-├── components/          # Reusable components
-├── data/               # TypeScript interfaces
-└── lib/                # Utility functions
+│   ├── projects/
+│   │   ├── upload/
+│   │   │   └── page.tsx      # Upload form page
+│   │   └── page.tsx          # Projects listing page
+│   ├── globals.css           # Global styles
+│   ├── layout.tsx            # Root layout
+│   └── page.tsx              # Home page with gallery
+├── components/
+│   ├── ui/
+│   │   ├── CustomCursor.tsx  # Custom cursor component
+│   │   ├── floating-navbar.tsx # Navigation component
+│   │   └── *.css             # Component styles
+│   └── CircularImageGallery.tsx # Main gallery component
+└── public/
+    └── assets/               # Gallery images (img1.jpg - img15.jpg)
 ```
 
-## Key Features Implemented
+## 🎨 Customization
 
-✅ **Simple Authentication System** (no bcrypt)
-✅ **Admin Dashboard** with statistics
-✅ **Mentor Management** with comprehensive profiles
-✅ **Class Management** with batch system
-✅ **Problem Statement Management** with filtering
-✅ **Session Management** with auto-population
-✅ **Public Problem Statement Browser**
-✅ **Academic Year Organization**
-✅ **Responsive UI** with Tailwind CSS
+### **Adding New Gallery Images**
+1. Add images to `/public/assets/` named `img16.jpg`, `img17.jpg`, etc.
+2. Update `NUM_UNIQUE_IMAGES` in `CircularImageGallery.tsx`
+3. Add corresponding project data in `sampleProjectData` array
 
-## Future Enhancements
+### **Modifying Project Categories**
+Edit the categories array in `/src/app/projects/upload/page.tsx`:
+```typescript
+const categories = [
+  'Web Development',
+  'Mobile App',
+  'Your New Category',
+  // Add more categories
+];
+```
 
-- Email notifications for session updates
-- File upload for project documents
-- Advanced reporting and analytics
-- Mobile app for mentors
-- Integration with learning management systems
-- Real-time notifications
-- Advanced search and filtering
+### **Styling Customization**
+- **Colors**: Modify Tailwind classes throughout components
+- **Animations**: Adjust GSAP timelines in `CircularImageGallery.tsx`
+- **Layout**: Update Tailwind grid and spacing classes
 
-## Contributing
+### **Gallery Behavior**
+Customize gallery settings in `CircularImageGallery.tsx`:
+```typescript
+const NUM_ITEMS = 150;        // Total gallery items
+const NUM_UNIQUE_IMAGES = 15; // Number of unique images
+```
+
+## 🎯 Key Features Explained
+
+### **Circular Gallery Animation**
+- Uses GSAP for smooth 3D transformations
+- Scroll-triggered rotation with momentum
+- Hover effects and interactive elements
+- Responsive design with mobile adaptations
+
+### **Upload Form**
+- Multi-file image upload with drag & drop
+- Dynamic technology tagging system
+- Form validation and user feedback
+- Preview functionality for uploaded images
+
+### **Navigation System**
+- Floating navigation with scroll detection
+- Mobile-responsive hamburger menu
+- Smooth animations with Framer Motion
+
+## 📱 Responsive Design
+
+- **Desktop**: Full gallery experience with mouse interactions
+- **Tablet**: Adapted touch interactions and sizing
+- **Mobile**: Optimized layout with touch-friendly controls
+
+## 🔧 Available Scripts
+
+```bash
+npm run dev      # Start development server
+npm run build    # Build for production
+npm run start    # Start production server
+npm run lint     # Run ESLint
+```
+
+## 🎨 Design Philosophy
+
+This project emphasizes:
+- **Visual Impact**: Stunning animations and interactions
+- **User Experience**: Intuitive navigation and feedback
+- **Performance**: Optimized animations and loading
+- **Accessibility**: Keyboard navigation and screen reader support
+- **Modularity**: Reusable components and clean architecture
+
+## 🚀 Deployment
+
+### **Vercel (Recommended)**
+```bash
+npm install -g vercel
+vercel
+```
+
+### **Netlify**
+```bash
+npm run build
+# Upload 'out' folder to Netlify
+```
+
+### **Static Export**
+```bash
+# Add to next.config.ts:
+# output: 'export'
+npm run build
+```
+
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## License
+## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Support
+## 🙏 Acknowledgments
 
-For support and questions, please create an issue in the repository.
+- **GSAP** for incredible animation capabilities
+- **Framer Motion** for smooth React animations
+- **Tailwind CSS** for rapid styling
+- **Lucide** for beautiful icons
+- **Next.js** team for the amazing framework

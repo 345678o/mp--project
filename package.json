@@ -1,5 +1,5 @@
 {
-  "name": "next-image-gallery",
+  "name": "project-showcase-platform",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,19 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@types/js-cookie": "^3.0.6",
-    "@types/uuid": "^10.0.0",
-    "bcryptjs": "^3.0.2",
     "framer-motion": "^12.15.0",
     "gsap": "^3.13.0",
-    "js-cookie": "^3.0.5",
     "ldrs": "^1.1.7",
     "lucide-react": "^0.525.0",
-    "mongodb": "^6.16.0",
     "next": "^15.3.2",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "uuid": "^11.1.0"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

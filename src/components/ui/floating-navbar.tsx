@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { JSX } from 'react';
 import { motion, AnimatePresence, useMotionValueEvent, useScroll } from 'framer-motion';
-import { isLoggedIn } from '../../data/auth';
 import './floating-navbar.css';
 
 interface NavItem {
@@ -27,11 +26,6 @@ export const FloatingNav = ({
   const lastScrollY = useRef(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
-  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
-
-  useEffect(() => {
-    setIsUserLoggedIn(isLoggedIn());
-  }, []);
 
   useEffect(() => {
     const checkMobileView = () => {
@@ -76,11 +70,6 @@ export const FloatingNav = ({
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const navItemsWithAuth: NavItem[] = [
-    ...navItems,
-    ...(isUserLoggedIn ? [] : [{ name: 'Mentor Login', link: '/mentors/login' }])
-  ];
-
   return (
     <div className="floating-nav-centering-wrapper">
       <AnimatePresence mode="wait">
@@ -108,7 +97,7 @@ export const FloatingNav = ({
           
           {(!isMobileView || isMobileMenuOpen) && (
             <div className={`nav-items-container ${isMobileView ? 'mobile-nav-items' : 'desktop-nav-items'}`}>
-              {navItemsWithAuth.map((navItem: NavItem, idx: number) => (
+              {navItems.map((navItem: NavItem, idx: number) => (
                 navItem.onClick ? (
                   <button
                     key={`button-${idx}`}

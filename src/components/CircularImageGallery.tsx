@@ -16,94 +16,94 @@ const NUM_UNIQUE_IMAGES = 15;
 // Updated sample data for each unique image
 const sampleProjectData = [
   {
-    title: "Micro Projects Management",
-    description: "A comprehensive platform for managing student projects, mentor sessions, and academic collaboration.",
+    title: "Upload Your Project",
+    description: "Share your amazing work with the community. Upload images, add descriptions, and showcase your skills.",
+    link: "/projects/upload",
+    stats: "Easy Upload | Community Driven"
+  },
+  {
+    title: "Browse Projects",
+    description: "Discover incredible projects created by talented developers from around the world.",
     link: "/projects",
-    stats: "Projects: 100+ | Mentors: 50+"
+    stats: "Community Projects | Open Source"
   },
   {
-    title: "Problem Statement Library",
-    description: "Browse through a curated collection of project problem statements for students and mentors.",
-    link: "/problems",
-    stats: "Problems: 200+ | Domains: 15+"
+    title: "Web Development",
+    description: "Modern web applications built with cutting-edge technologies and best practices.",
+    link: "/projects",
+    stats: "React | Next.js | Node.js"
   },
   {
-    title: "Student Dashboard",
-    description: "Access your assigned projects, track progress, and collaborate with team members.",
-    link: "/mentors/dashboard",
-    stats: "Sessions: 50+ | Classes: 10+"
+    title: "Mobile Applications",
+    description: "Cross-platform mobile apps that deliver exceptional user experiences.",
+    link: "/projects",
+    stats: "React Native | Flutter | Swift"
   },
   {
-    title: "Admin Portal",
-    description: "Manage mentors, classes, problem statements, and oversee the entire micro projects system.",
-    link: "/admin/login",
-    stats: "Mentors: 50+ | Classes: 20+"
+    title: "Data Science Projects",
+    description: "Insightful data analysis and machine learning projects that solve real-world problems.",
+    link: "/projects",
+    stats: "Python | ML | Analytics"
   },
   {
-    title: "Session Management",
-    description: "Track session progress, manage attendance, and monitor project completion status.",
-    link: "/mentors/complete-session",
-    stats: "Sessions: 100+ | Completion: 85%"
+    title: "Creative Coding",
+    description: "Artistic and interactive projects that blend technology with creativity.",
+    link: "/projects",
+    stats: "p5.js | Three.js | WebGL"
   },
   {
-    title: "Vintage Car Elegance",
-    description: "Celebrating the timeless beauty and engineering marvels of classic automobile designs.",
-    link: "/projects/vintage-cars",
-    stats: "Models: 75+ | Era: 1920-1970"
+    title: "Open Source",
+    description: "Community-driven projects that anyone can contribute to and learn from.",
+    link: "/projects",
+    stats: "GitHub | Collaboration | Learning"
   },
   {
-    title: "Digital Abstract Art",
-    description: "Where complex algorithms and human creativity meet to form stunning new visual experiences.",
-    link: "/projects/digital-art",
-    stats: "Artists: 50+ | Pieces: 1000+"
+    title: "Full Stack Applications",
+    description: "Complete applications with both frontend and backend implementations.",
+    link: "/projects",
+    stats: "MERN | MEAN | JAMstack"
   },
   {
-    title: "Serene Lakeside Vistas",
-    description: "Capturing a peaceful and awe-inspiring moment by a tranquil mountain lakeside vista.",
-    link: "/projects/lakeside",
-    stats: "Locations: 10+ | Photographers: 15"
+    title: "API Development",
+    description: "RESTful APIs and GraphQL services that power modern applications.",
+    link: "/projects",
+    stats: "REST | GraphQL | Microservices"
   },
   {
-    title: "Urban Hidden Gems",
-    description: "Discovering the secret spots and untold stories hidden within bustling cityscapes.",
-    link: "/projects/urban-gems",
-    stats: "Cities: 20+ | Secrets: 200+"
+    title: "DevOps Projects",
+    description: "Infrastructure and deployment solutions that streamline development workflows.",
+    link: "/projects",
+    stats: "Docker | CI/CD | Cloud"
   },
   {
-    title: "Robotics & AI Future",
-    description: "How artificial intelligence is shaping the future of automated assistance and daily life.",
-    link: "/projects/robotics-ai",
-    stats: "Innovations: 300+ | Labs: 40+"
+    title: "Game Development",
+    description: "Interactive games and simulations built with various game engines and frameworks.",
+    link: "/projects",
+    stats: "Unity | Godot | JavaScript"
   },
   {
-    title: "Siberian Tiger Encounter",
-    description: "A breathtaking close encounter with a majestic Siberian tiger in its natural habitat.",
-    link: "/projects/siberian-tiger",
-    stats: "Sightings: 12 | Cubs: 3"
+    title: "IoT Solutions",
+    description: "Internet of Things projects that connect the physical and digital worlds.",
+    link: "/projects",
+    stats: "Arduino | Raspberry Pi | Sensors"
   },
   {
-    title: "Luxury Swiss Horology",
-    description: "The intricate and fascinating mechanics behind a high-end luxury Swiss timepiece.",
-    link: "/projects/swiss-watch",
-    stats: "Brands: 10+ | Parts: 500+"
+    title: "AI & Machine Learning",
+    description: "Artificial intelligence projects that showcase the power of modern ML techniques.",
+    link: "/projects",
+    stats: "TensorFlow | PyTorch | NLP"
   },
   {
-    title: "Valley Paragliding",
-    description: "Soaring like a bird above picturesque valleys, mountains, and serene landscapes.",
-    link: "/projects/paragliding",
-    stats: "Flights: 1000+ | Heights: 2km"
+    title: "Blockchain Projects",
+    description: "Decentralized applications and smart contracts built on various blockchain platforms.",
+    link: "/projects",
+    stats: "Ethereum | Solidity | DeFi"
   },
   {
-    title: "Microscopic Universe",
-    description: "A hidden universe teeming with diverse and fascinating life, invisible to the naked eye.",
-    link: "/projects/microscopic",
-    stats: "Organisms: 1M+ | Discoveries: 50+"
-  },
-  {
-    title: "Egyptian Pyramid Secrets",
-    description: "Unearthing the ancient secrets, history, and engineering marvels of the Egyptian pyramids.",
-    link: "/projects/pyramids",
-    stats: "Dynasties: 30+ | Artifacts: 10K+"
+    title: "Community Showcase",
+    description: "Join our growing community of developers and share your passion projects with the world.",
+    link: "/projects/upload",
+    stats: "Share | Learn | Grow"
   }
 ];
 
@@ -391,9 +391,9 @@ const CircularImageGallery: React.FC = () => {
       <CustomCursor />
       
       <div className="background-text" ref={backgroundTextRef}>
-        Micro
+        Project
         <br />
-        Projects
+        Showcase
       </div>
 
       <div className="preview-img" ref={previewImgContainerRef}>
