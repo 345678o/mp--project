@@ -13,6 +13,7 @@ interface ProjectFormData {
   domain: string;
   class: string;
   section: string;
+  batch: string;
   academicYear: string;
   teamNumber: string;
   teamLead: string;
@@ -36,6 +37,7 @@ export default function UploadProject() {
     domain: '',
     class: '',
     section: '',
+    batch: '',
     academicYear: '',
     teamNumber: '',
     teamLead: '',
@@ -78,16 +80,26 @@ export default function UploadProject() {
   ];
 
   const domains = [
-    'Computer Science',
-    'Computer Science & Design',
-    'Electronics & Communication',
-    'Aerospace Engineering',
-    'Mechanical Engineering',
-    'Electrical & Electronics',
-    'Information Technology',
-    'Civil Engineering',
-    'Chemical Engineering',
-    'Biotechnology',
+    'Education',
+    'Healthcare',
+    'Travel & Tourism',
+    'E-commerce',
+    'Finance & Banking',
+    'Entertainment',
+    'Social Media',
+    'Food & Restaurant',
+    'Transportation',
+    'Real Estate',
+    'Agriculture',
+    'Sports & Fitness',
+    'Gaming',
+    'Environment',
+    'Security',
+    'Communication',
+    'Productivity',
+    'Art & Design',
+    'Music & Audio',
+    'News & Media',
     'Other'
   ];
 
@@ -106,6 +118,11 @@ export default function UploadProject() {
     'AERO - Aerospace Engineering',
     'MECH - Mechanical Engineering',
     'EEE - Electrical & Electronics Engineering'
+  ];
+
+  const batches = [
+    'Batch 1',
+    'Batch 2'
   ];
 
   // Dynamic sections based on class (branch)
@@ -132,6 +149,52 @@ export default function UploadProject() {
   };
 
   const availableSections = getSectionsForClass(formData.class);
+
+  // Auto-generate reference number
+  const generateReferenceNumber = () => {
+    if (!formData.academicYear || !formData.class || !formData.section || !formData.projectType || !formData.batch || !formData.teamNumber) {
+      return '';
+    }
+
+    // Extract academic year (e.g., "2024-2025" -> "2025-26")
+    const yearParts = formData.academicYear.split('-');
+    const shortYear = yearParts[1] ? `${yearParts[1]}-${(parseInt(yearParts[1]) + 1).toString().slice(-2)}` : '';
+
+    // Extract class code (e.g., "CSE - Computer Science Engineering" -> "CSE")
+    const classCode = formData.class.split(' - ')[0];
+
+    // Extract section (e.g., "Section A" -> "A" or just "A" -> "A")
+    const sectionCode = formData.section.replace('Section ', '');
+
+    // Extract project type code (Software -> S, Hardware -> H, Software + Hardware -> SH)
+    let projectTypeCode = '';
+    if (formData.projectType === 'Software') {
+      projectTypeCode = 'S';
+    } else if (formData.projectType === 'Hardware') {
+      projectTypeCode = 'H';
+    } else if (formData.projectType === 'Software + Hardware') {
+      projectTypeCode = 'SH';
+    }
+
+    // Extract batch code (e.g., "Batch 1" -> "B1")
+    const batchCode = formData.batch.replace('Batch ', 'B');
+
+    // Format team number with leading zeros (e.g., "1" -> "001")
+    const teamNumberFormatted = formData.teamNumber.padStart(3, '0');
+
+    return `MP${shortYear}${classCode}-${sectionCode}${projectTypeCode}${batchCode}${teamNumberFormatted}`;
+  };
+
+  // Auto-update reference number when dependencies change
+  React.useEffect(() => {
+    const autoRef = generateReferenceNumber();
+    if (autoRef && autoRef !== formData.referenceNo) {
+      setFormData(prev => ({
+        ...prev,
+        referenceNo: autoRef
+      }));
+    }
+  }, [formData.academicYear, formData.class, formData.section, formData.projectType, formData.batch, formData.teamNumber]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -236,6 +299,7 @@ export default function UploadProject() {
         domain: '',
         class: '',
         section: '',
+        batch: '',
         academicYear: '',
         teamNumber: '',
         teamLead: '',
@@ -295,17 +359,40 @@ export default function UploadProject() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Reference No *
+                    Reference No (Auto-generated) *
                   </label>
-                  <input
-                    type="text"
-                    name="referenceNo"
-                    value={formData.referenceNo}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter reference number"
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      name="referenceNo"
+                      value={formData.referenceNo}
+                      readOnly
+                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
+                      placeholder="Fill required fields to generate"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newRef = generateReferenceNumber();
+                        if (newRef) {
+                          setFormData(prev => ({ ...prev, referenceNo: newRef }));
+                        }
+                      }}
+                      disabled={!generateReferenceNumber()}
+                      className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                      title="Regenerate reference number"
+                    >
+                      🔄
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Format: MP[Year][Branch]-[Section][Type][Batch][TeamNo]
+                  </p>
+                  {formData.referenceNo && (
+                    <p className="text-xs text-green-600 mt-1">
+                      Generated: {formData.referenceNo}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -348,7 +435,7 @@ export default function UploadProject() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Domain *
+                    Project Domain *
                   </label>
                   <select
                     name="domain"
@@ -357,7 +444,7 @@ export default function UploadProject() {
                     required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="">Select domain</option>
+                    <option value="">Select project domain</option>
                     {domains.map(domain => (
                       <option key={domain} value={domain}>{domain}</option>
                     ))}
@@ -420,7 +507,7 @@ export default function UploadProject() {
                 Academic Information
               </h2>
               
-              <div className="grid md:grid-cols-3 gap-6">
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Academic Year *
@@ -486,6 +573,24 @@ export default function UploadProject() {
                       No sections available for selected branch
                     </p>
                   )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Batch *
+                  </label>
+                  <select
+                    name="batch"
+                    value={formData.batch}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">Select batch</option>
+                    {batches.map(batch => (
+                      <option key={batch} value={batch}>{batch}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>
