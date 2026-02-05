@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Upload, X, FileText, Image, Link, User, Calendar, Tag, ExternalLink, Video, Presentation, RotateCcw } from 'lucide-react';
+import { Upload, X, FileText, Image, Link, User, Calendar, Tag, ExternalLink, Video, Presentation } from 'lucide-react';
 import { FloatingNav } from '@/components/ui/floating-navbar';
 import { Home as HomeIcon } from 'lucide-react';
 
@@ -82,60 +82,57 @@ export default function UploadProject() {
     }
   }, []);
 
-  const loadProjectForEdit = async (referenceNo: string) => {
+  const loadProjectForEdit = (referenceNo: string) => {
     try {
-      const response = await fetch(`/api/projects/${encodeURIComponent(referenceNo)}`);
-      const result = await response.json();
+      const existingProjects = JSON.parse(localStorage.getItem('microProjects') || '{}');
+      const project = existingProjects[referenceNo];
       
-      if (result.success && result.data) {
-        const project = result.data;
+      if (project) {
         setFormData({
-          title: project.title || '',
-          description: project.description || '',
-          category: project.category || '',
-          projectType: project.projectType || '',
-          domain: project.domain || '',
-          class: project.class || '',
-          section: project.section || '',
-          batch: project.batch || '',
-          academicYear: project.academicYear || '',
-          teamNumber: project.teamNumber || '',
-          teamLead: project.teamLead || '',
-          teamLeadNumber: project.teamLeadNumber || '',
+          title: project.projectInfo.title || '',
+          description: project.projectInfo.description || '',
+          category: project.projectInfo.category || '',
+          projectType: project.projectInfo.projectType || '',
+          domain: project.projectInfo.domain || '',
+          class: project.academicInfo.class || '',
+          section: project.academicInfo.section || '',
+          batch: project.academicInfo.batch || '',
+          academicYear: project.academicInfo.academicYear || '',
+          teamNumber: project.teamInfo.teamNumber || '',
+          teamLead: project.teamInfo.teamLead || '',
+          teamLeadNumber: project.teamInfo.teamLeadNumber || '',
           referenceNo: project.referenceNo || '',
-          technologies: project.technologies || [],
-          githubUrl: project.githubUrl || '',
-          liveUrl: project.liveUrl || '',
-          pptUrl: project.pptUrl || '',
+          technologies: project.projectInfo.technologies || [],
+          githubUrl: project.projectInfo.githubUrl || '',
+          liveUrl: project.projectInfo.liveUrl || '',
+          pptUrl: project.projectInfo.pptUrl || '',
           pptFile: null, // Can't reload files, but show if there was one
-          abstractUrl: project.abstractUrl || '',
+          abstractUrl: project.projectInfo.abstractUrl || '',
           abstractFile: null, // Can't reload files, but show if there was one
-          researchPaperUrl: project.researchPaperUrl || '',
+          researchPaperUrl: project.projectInfo.researchPaperUrl || '',
           researchPaperFile: null, // Can't reload files, but show if there was one
-          workingVideoUrl: project.workingVideoUrl || '',
-          authorName: project.authorName || '',
-          authorEmail: project.authorEmail || '',
+          workingVideoUrl: project.projectInfo.workingVideoUrl || '',
+          authorName: project.teamInfo.authorName || '',
+          authorEmail: project.teamInfo.authorEmail || '',
           images: [], // Can't reload files
           documentation: null, // Can't reload files
         });
         setIsEditMode(true);
         
         // Show info about previously uploaded files
-        if (project.files && project.files.length > 0) {
-          const fileInfo = project.files.map((file: any) => 
-            `${file.fileType.toUpperCase()}: ${file.originalName}`
-          );
+        if (project.media?.pptFile || project.media?.abstractFile || project.media?.researchPaperFile) {
+          const fileInfo = [];
+          if (project.media.pptFile) fileInfo.push(`PPT: ${project.media.pptFile}`);
+          if (project.media.abstractFile) fileInfo.push(`Abstract: ${project.media.abstractFile}`);
+          if (project.media.researchPaperFile) fileInfo.push(`Research Paper: ${project.media.researchPaperFile}`);
           
           if (fileInfo.length > 0) {
             alert(`Project loaded for editing!\n\nPreviously uploaded files:\n${fileInfo.join('\n')}\n\nNote: You can upload new files to replace the existing ones.`);
           }
         }
-      } else {
-        alert('Project not found or failed to load.');
       }
     } catch (error) {
       console.error('Error loading project for edit:', error);
-      alert('Failed to load project for editing.');
     }
   };
 
@@ -413,184 +410,103 @@ export default function UploadProject() {
         return;
       }
 
-      // Prepare project data for API
+      // Create project data object with reference number as identifier
       const projectData = {
         referenceNo: formData.referenceNo,
-        title: formData.title,
-        description: formData.description,
-        category: formData.category,
-        projectType: formData.projectType,
-        domain: formData.domain,
-        technologies: formData.technologies,
-        githubUrl: formData.githubUrl,
-        liveUrl: formData.liveUrl,
-        pptUrl: formData.pptUrl,
-        abstractUrl: formData.abstractUrl,
-        researchPaperUrl: formData.researchPaperUrl,
-        workingVideoUrl: formData.workingVideoUrl,
-        academicYear: formData.academicYear,
-        class: formData.class,
-        section: formData.section,
-        batch: formData.batch,
-        teamNumber: formData.teamNumber,
-        teamLead: formData.teamLead,
-        teamLeadNumber: formData.teamLeadNumber,
-        authorName: formData.authorName,
-        authorEmail: formData.authorEmail,
+        projectInfo: {
+          title: formData.title,
+          description: formData.description,
+          category: formData.category,
+          projectType: formData.projectType,
+          domain: formData.domain,
+          technologies: formData.technologies,
+          githubUrl: formData.githubUrl,
+          liveUrl: formData.liveUrl,
+          pptUrl: formData.pptUrl,
+          abstractUrl: formData.abstractUrl,
+          researchPaperUrl: formData.researchPaperUrl,
+          workingVideoUrl: formData.workingVideoUrl,
+        },
+        academicInfo: {
+          academicYear: formData.academicYear,
+          class: formData.class,
+          section: formData.section,
+          batch: formData.batch,
+        },
+        teamInfo: {
+          teamNumber: formData.teamNumber,
+          teamLead: formData.teamLead,
+          teamLeadNumber: formData.teamLeadNumber,
+          authorName: formData.authorName,
+          authorEmail: formData.authorEmail,
+        },
+        media: {
+          images: formData.images.map(img => img.name), // Store image names
+          documentation: formData.documentation?.name || null,
+          pptFile: formData.pptFile?.name || null,
+          abstractFile: formData.abstractFile?.name || null,
+          researchPaperFile: formData.researchPaperFile?.name || null,
+        },
+        metadata: {
+          createdAt: new Date().toISOString(),
+          status: 'submitted',
+          submissionId: formData.referenceNo, // Use reference number as submission ID
+        }
       };
 
-      // Create or update project via API
-      let response;
-      if (isEditMode) {
-        response = await fetch(`/api/projects/${encodeURIComponent(formData.referenceNo)}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(projectData),
-        });
-      } else {
-        response = await fetch('/api/projects', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(projectData),
-        });
-      }
+      // In a real application, you would save this to a database or file system
+      // For demo purposes, we'll save to localStorage with reference number as key
+      const existingProjects = JSON.parse(localStorage.getItem('microProjects') || '{}');
+      existingProjects[formData.referenceNo] = projectData;
+      localStorage.setItem('microProjects', JSON.stringify(existingProjects));
 
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to save project');
-      }
-
-      // Upload files if any
-      const fileUploads = [];
-
-      if (formData.pptFile) {
-        fileUploads.push(
-          fetch('/api/upload', {
-            method: 'POST',
-            body: (() => {
-              const uploadFormData = new FormData();
-              uploadFormData.append('referenceNo', projectData.referenceNo);
-              uploadFormData.append('fileType', 'ppt');
-              uploadFormData.append('file', formData.pptFile!);
-              return uploadFormData;
-            })(),
-          })
-        );
-      }
-
-      if (formData.abstractFile) {
-        fileUploads.push(
-          fetch('/api/upload', {
-            method: 'POST',
-            body: (() => {
-              const uploadFormData = new FormData();
-              uploadFormData.append('referenceNo', projectData.referenceNo);
-              uploadFormData.append('fileType', 'abstract');
-              uploadFormData.append('file', formData.abstractFile!);
-              return uploadFormData;
-            })(),
-          })
-        );
-      }
-
-      if (formData.researchPaperFile) {
-        fileUploads.push(
-          fetch('/api/upload', {
-            method: 'POST',
-            body: (() => {
-              const uploadFormData = new FormData();
-              uploadFormData.append('referenceNo', projectData.referenceNo);
-              uploadFormData.append('fileType', 'research_paper');
-              uploadFormData.append('file', formData.researchPaperFile!);
-              return uploadFormData;
-            })(),
-          })
-        );
-      }
-
-      if (formData.images.length > 0) {
-        formData.images.forEach(image => {
-          fileUploads.push(
-            fetch('/api/upload', {
-              method: 'POST',
-              body: (() => {
-                const uploadFormData = new FormData();
-                uploadFormData.append('referenceNo', projectData.referenceNo);
-                uploadFormData.append('fileType', 'image');
-                uploadFormData.append('file', image);
-                return uploadFormData;
-              })(),
-            })
-          );
-        });
-      }
-
-      if (formData.documentation) {
-        fileUploads.push(
-          fetch('/api/upload', {
-            method: 'POST',
-            body: (() => {
-              const uploadFormData = new FormData();
-              uploadFormData.append('referenceNo', projectData.referenceNo);
-              uploadFormData.append('fileType', 'documentation');
-              uploadFormData.append('file', formData.documentation!);
-              return uploadFormData;
-            })(),
-          })
-        );
-      }
-
-      // Wait for all file uploads to complete
-      if (fileUploads.length > 0) {
-        await Promise.all(fileUploads);
+      // Also save to a list for easy retrieval
+      const projectsList = JSON.parse(localStorage.getItem('microProjectsList') || '[]');
+      if (!projectsList.includes(formData.referenceNo)) {
+        projectsList.push(formData.referenceNo);
+        localStorage.setItem('microProjectsList', JSON.stringify(projectsList));
       }
 
       console.log('Project saved with reference:', formData.referenceNo);
+      console.log('Project data:', projectData);
 
-      alert(`Project ${isEditMode ? 'updated' : 'uploaded'} successfully!\nReference Number: ${formData.referenceNo}\n\nYour project has been saved.`);
+      alert(`Project uploaded successfully!\nReference Number: ${formData.referenceNo}\n\nYour project has been saved with this reference number.`);
       
-      // Reset form if not in edit mode
-      if (!isEditMode) {
-        setFormData({
-          title: '',
-          description: '',
-          category: '',
-          projectType: '',
-          domain: '',
-          class: '',
-          section: '',
-          batch: '',
-          academicYear: '',
-          teamNumber: '',
-          teamLead: '',
-          teamLeadNumber: '',
-          referenceNo: '',
-          technologies: [],
-          githubUrl: '',
-          liveUrl: '',
-          pptUrl: '',
-          pptFile: null,
-          abstractUrl: '',
-          abstractFile: null,
-          researchPaperUrl: '',
-          researchPaperFile: null,
-          workingVideoUrl: '',
-          authorName: '',
-          authorEmail: '',
-          images: [],
-          documentation: null,
-        });
-        setTechInput('');
-      }
+      // Reset form
+      setFormData({
+        title: '',
+        description: '',
+        category: '',
+        projectType: '',
+        domain: '',
+        class: '',
+        section: '',
+        batch: '',
+        academicYear: '',
+        teamNumber: '',
+        teamLead: '',
+        teamLeadNumber: '',
+        referenceNo: '',
+        technologies: [],
+        githubUrl: '',
+        liveUrl: '',
+        pptUrl: '',
+        pptFile: null,
+        abstractUrl: '',
+        abstractFile: null,
+        researchPaperUrl: '',
+        researchPaperFile: null,
+        workingVideoUrl: '',
+        authorName: '',
+        authorEmail: '',
+        images: [],
+        documentation: null,
+      });
+      setTechInput('');
       
     } catch (error) {
       console.error('Save error:', error);
-      alert(`Failed to ${isEditMode ? 'update' : 'save'} project. Please try again.`);
+      alert('Failed to save project. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -665,7 +581,7 @@ export default function UploadProject() {
                       className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                       title="Regenerate reference number"
                     >
-                      <RotateCcw className="w-4 h-4" />
+                      🔄
                     </button>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
@@ -997,7 +913,7 @@ export default function UploadProject() {
                           </span>
                           <span className="text-xs text-gray-400">
                             {index === 0 && 'URLs & Links'}
-                            {index === 1 && 'Documents & Papers'}
+                            {index === 1 && 'Files & Papers'}
                             {index === 2 && 'Images & Docs'}
                           </span>
                         </div>
@@ -1377,7 +1293,6 @@ export default function UploadProject() {
                   </button>
                 </div>
               </div>
-            </div>
             </div>
 
             {/* Submit Button */}
